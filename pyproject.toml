@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "corpus-parser"
+version = "0.0.1"
+authors = [
+  { name="Ian Pattison", email="ianpattison2@gmail.com" },
+]
+description = "Python library for importing and using corpus data in linguistic research"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/idpattison/corpus-parser"
+Issues = "https://github.com/idpattison/corpus-parser/issues"
