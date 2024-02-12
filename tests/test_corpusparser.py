@@ -1,6 +1,6 @@
 import unittest
 
-from src.corpusparser import Document
+from src.corpusparser import Document, Corpus
 import xml.etree.ElementTree as ET
 
 class ImportColmepBasicTestCase(unittest.TestCase):
@@ -22,28 +22,15 @@ class ImportColmepBasicTestCase(unittest.TestCase):
         # check for document name
         self.assertEqual(self.d.get('name'), 'Test document') 
 
-    # # check that the first child element is a newpage with pageno = 1
-    # def test_imported_file_newpage(self):
-    #     # check that there are some elements
-    #     self.assertFalse(not self.d_list)
-    #     # check for newpage element
-    #     self.assertEqual(self.d_list[0].tag, 'newpage') 
-    #     # check for pageno
-    #     self.assertEqual(self.d_list[0].get('pageno'), '1') 
+    # check that xml text matches the sample
+    # def test_basic_imported_file_xml_output(self):
+    #     # export xml
+    #     xml = ET.tostring(self.d, encoding='unicode') 
+    #     # import sample and compare
+    #     file = open('tests/data/stage1.xml')
+    #     sample = file.read()
+    #     self.assertEqual(xml, sample)
 
-    # # check that the next child element is a comment with the correct comtext
-    # def test_imported_file_comment(self):
-    #     # check for comment element
-    #     self.assertEqual(self.d_list[1].tag, 'comment') 
-    #     # check for comment text
-    #     self.assertIn('First page with title', self.d_list[1].get('comtext')) 
-
-    # # check that the next child element is a text element with the correct text
-    # def test_imported_file_text(self):
-    #     # check for first text element
-    #     self.assertEqual(self.d_list[2].tag, 'text') 
-    #     # check for text 
-    #     self.assertIn('¶ The right plesaunt and goodly historie', self.d_list[2].text) 
 
 class ImportColmepStandardTestCase(unittest.TestCase):
 
@@ -83,6 +70,20 @@ class ImportColmepStandardTestCase(unittest.TestCase):
             self.assertEquals(elem.text, '¶') 
             break
 
+
+class UtilityFunctionsTestCase(unittest.TestCase):
+
+    # import the xml file into a Document
+    def setUp(self) -> None:
+        filename = 'tests/data/input.xml'
+        docname = 'Test document'
+        self.d = Document()
+        self.d.import_colmep_format(filename, docname)
+        return super().setUp()
+
+    # check that the root is a document with the correct name
+    def test_count_elements(self):
+        self.assertEqual(Corpus.count_elements(self.d, 'comment'), 6)
 
 
 if __name__ == '__main__':
