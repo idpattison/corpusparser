@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from src.corpusparser import Document
+from src.document import Document
 
 filename = 'tests/data/input.xml'
 d = Document()

@@ -1,6 +1,6 @@
 import unittest
 
-from src.corpusparser import Document, Corpus
+from src.document import Document, Corpus
 import xml.etree.ElementTree as ET
 
 class ImportColmepBasicTestCase(unittest.TestCase):
@@ -83,7 +83,7 @@ class UtilityFunctionsTestCase(unittest.TestCase):
 
     # check that the root is a document with the correct name
     def test_count_elements(self):
-        self.assertEqual(Corpus.count_elements(self.d, 'comment'), 6)
+        self.assertEqual(Document.count_elements(self.d, 'comment'), 6)
 
 
 if __name__ == '__main__':

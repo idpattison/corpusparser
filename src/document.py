@@ -2,12 +2,9 @@ import xml.etree.ElementTree as ET
 
 # create some classes to help with type-checking
 class Corpus(ET.Element):
-    # count elements within another element
+    # count elements within the corpus
     def count_elements(element: ET.Element, type: str) -> int:
-        count = 0
-        for elem in element.iter(type):
-            count += 1
-        return count
+        return _count_elements(element, type)
     
 
 # Document class handles everything aroun importing and exporting documents
@@ -79,7 +76,11 @@ class Document(ET.Element):
                 tag.text = elem.text
                 attribs = elem.attrib.items()
                 tag.attrib.update(attribs)
-        
+    
+    # count elements within the document
+    def count_elements(element: ET.Element, type: str) -> int:
+        return _count_elements(element, type)
+
 
 
 class Sentence(ET.Element):
@@ -94,4 +95,9 @@ def cloneElement(element: ET.Element) -> ET.Element:
     xml = ET.tostring(element, encoding='unicode')
     return ET.fromstring(xml)
 
-
+# utility class to count elements - called from Corpus or Document
+def _count_elements(element: ET.Element, type: str) -> int:
+    count = 0
+    for elem in element.iter(type):
+        count += 1
+    return count
