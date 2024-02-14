@@ -81,9 +81,26 @@ class UtilityFunctionsTestCase(unittest.TestCase):
         self.d.import_colmep_format(filename, docname)
         return super().setUp()
 
-    # check that the root is a document with the correct name
+    # check that the element counting function works
     def test_count_elements(self):
         self.assertEqual(Document.count_elements(self.d, 'comment'), 6)
+
+    # check that the clear document children function works
+    def test_clear_children(self):
+        self.d.clear_children()
+        # check there are no child elements
+        self.assertEqual(Document.count_elements(self.d, 'comment'), 0)
+        # check the document name is still in place
+        self.assertEqual(self.d.get('name'), 'Test document')
+        
+    # check that the clone document function works
+    def test_clone_document(self):
+        d_new = self.d.clone_document()
+        # check there are the same number of child elements
+        self.assertEqual(Document.count_elements(d_new, 'comment'), 6)
+        # check the document name has been cloned
+        self.assertEqual(d_new.get('name'), 'Test document')
+        
 
 
 if __name__ == '__main__':
