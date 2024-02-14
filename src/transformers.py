@@ -1,103 +1,74 @@
 import xml.etree.ElementTree as ET
+from src.document import Document, Sentence
 
 # A set of classes which transform the corpus tree from one state to another
 class Transformers():
-    # count elements within the corpus
-    def count_elements(element: ET.Element, type: str) -> int:
-        return _count_elements(element, type)
-    
 
-# Document class handles everything aroun importing and exporting documents
-class Document(ET.Element):
-    def __init__(self) -> None:
-        super().__init__('document')
+    def transform_tokenise_sentences(d: Document, tokenisation_model='period') -> None:
+        # split the words into sentences
+        # start with a set of <w> elements which are children of the <document>
+        # create <s> elements to hold the <w> elements in each sentence
 
-    def import_colmep_format(self, filename: str, name: str, basic=False) -> None:
-        # ensure the document is empty
-        self.clear()
+        # create an ordered list of word elements - NB this can be punctuation also
+        word_elem_list = list(d.iter('w'))
 
-        # import the file into basic XML format and name it
-        self.import_colmep_to_basic(filename)
-        self.set('name', name)
+        # iterate through the list and call the tokenisation model for each word
+        # if the model predicts this is the last word of a sentence, add a 'sent-break' attribute to flag this
+        for i in range(0, len(word_elem_list)):
 
-        # if required, comvert from basic format to standard
-        if not basic:
-            self.convert_basic_to_standard()
+            # choose the tokenisation model
+            if tokenisation_model == 'period':
+                if _period_tokenisation_model(word_elem_list, i):
+                    word_elem_list[i].set('sent-break', '1')
 
+            # NB no other tokenisation models at present
 
-    def import_colmep_to_basic(self, filename: str) -> None:
-        # parse the file into a temporary ElementTree and iterate across it
-        tmp_tree = ET.parse(filename)
+        # the last word will always be a sentence break
+        word_elem_list[-1].set('sent-break', '1')
 
-        for elem in tmp_tree.getroot().iter():
+        # clone the document and clear the existing children
+        old_doc = d.clone_document()
+        d.clear_children()
 
-            # the iterator picks up the document element itself, so skip that
+        # iterate through all child elements of the original document
+        s = None
+        for elem in old_doc.iter():
+
+            # the iterator picks up the document itself - ignore this
             if elem.tag != 'document':
 
-                # for each child item, copy the element and append it to the document root
-                new_elem = ET.SubElement(self, elem.tag, elem.attrib)
-                new_elem.text = elem.text
+                # if this element is a word
+                if elem.tag == 'w':
+                    # if there is no sentence, create one, append it to the document
+                    if s == None:
+                        s = Sentence()
+                        d.append(s)
 
-                # if there is a tail, create a new <text> element using the tail text
-                if elem.tail != None:
-                    if elem.tail != '' and elem.tail != '\n':
-                        text_elem = ET.SubElement(self, 'text')
-                        text_elem.text = elem.tail
+                    # add the word to the sentence
+                    # TODO - do we need to clone this?
+                    s.append(elem)
+
+                    # if this word is sentence breaking
+                    if elem.get('sent-break') == '1':
+                        # set the sentence back to None to signify it has ended and we need a new one
+                        s = None
+
+                # if not a word
+                else:
+                    # copy the element to the sentence is we have one, or the document if not
+                    if s == None:
+                        d.append(elem)
+                    else:
+                        s.append(elem) 
 
 
-    def convert_basic_to_standard(self) -> None:
-        # set up current document, sentence and word
-        w = None
+        
 
-        # clone the document and clear the original - it will be easier to copy across than to keep track of iterators
-        d_old = cloneElement(self)
-        self.clear()
-        self.set('name', d_old.get('name'))
+# Utility functions
 
-        # iterate across the existing document
-        for elem in d_old.iter():
-                
-            # if this is a text element
-            if elem.tag == 'text':
-
-                # split the text into tokens based on whitespace
-                tokens = elem.text.split()
-
-                # iterate across each token
-                for token in tokens:
-                    # add the token to the document as a w element
-                    # NB this will include punctuation
-                    w = ET.SubElement(self, 'w')
-                    w.text = token
-
-            # if this is a page, comment or footnote tag, copy it into the document
-            if elem.tag in ['newpage', 'newfolio', 'comment', 'footnote']:
-                tag = ET.SubElement(self, elem.tag)
-                tag.text = elem.text
-                attribs = elem.attrib.items()
-                tag.attrib.update(attribs)
+def _period_tokenisation_model(word_list, index: int) -> bool:
+    if word_list[index].text == '.':
+        return True
+    return False
     
-    # count elements within the document
-    def count_elements(element: ET.Element, type: str) -> int:
-        return _count_elements(element, type)
 
-
-
-class Sentence(ET.Element):
-    pass
-
-class Word(ET.Element):
-    pass
-
-# create a new deep copy of any element in the tree
-def cloneElement(element: ET.Element) -> ET.Element:
-    # the easiest way is to convert to an XML string then parse back out
-    xml = ET.tostring(element, encoding='unicode')
-    return ET.fromstring(xml)
-
-# utility class to count elements - called from Corpus or Document
-def _count_elements(element: ET.Element, type: str) -> int:
-    count = 0
-    for elem in element.iter(type):
-        count += 1
-    return count

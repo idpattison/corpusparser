@@ -50,7 +50,7 @@ class Document(ET.Element):
         w = None
 
         # clone the document and clear the original - it will be easier to copy across than to keep track of iterators
-        d_old = cloneElement(self)
+        d_old = self.clone_document()
         self.clear()
         self.set('name', d_old.get('name'))
 
@@ -80,20 +80,41 @@ class Document(ET.Element):
     # count elements within the document
     def count_elements(element: ET.Element, type: str) -> int:
         return _count_elements(element, type)
+    
+    # clone a document
+    def clone_document(self):
+        return _clone_element(self)
+
+    # clear a document
+    def clear_children(self):
+        return _clear_children(self)
+
 
 
 
 class Sentence(ET.Element):
-    pass
+    def __init__(self) -> None:
+        super().__init__('s')
 
 class Word(ET.Element):
-    pass
+    def __init__(self) -> None:
+        super().__init__('w')
 
 # create a new deep copy of any element in the tree
-def cloneElement(element: ET.Element) -> ET.Element:
+def _clone_element(element: ET.Element) -> ET.Element:
     # the easiest way is to convert to an XML string then parse back out
     xml = ET.tostring(element, encoding='unicode')
     return ET.fromstring(xml)
+
+# clear all children from the tree
+def _clear_children(element: ET.Element) -> None:
+    text = element.text
+    tail = element.tail
+    attribs = element.attrib.items()
+    element.clear()
+    element.text = text
+    element.tail = tail
+    element.attrib.update(attribs)
 
 # utility class to count elements - called from Corpus or Document
 def _count_elements(element: ET.Element, type: str) -> int:
