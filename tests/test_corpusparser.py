@@ -1,7 +1,6 @@
 import unittest
 
 from src.document import Document
-from src.transformers import Transformers
 
 import xml.etree.ElementTree as ET
 
@@ -112,8 +111,8 @@ class SentencesAndWordsTestCase(unittest.TestCase):
         docname = 'Test document'
         self.d = Document()
         self.d.import_colmep_format(filename, docname)
-        Transformers.transform_tokenise_sentences(self.d)
-        Transformers.transform_add_text_to_sentences(self.d)
+        self.d.transform_tokenise_sentences()
+        self.d.transform_add_text_to_sentences()
         return super().setUp()
     
     # check that we can get all sentences from the text
@@ -146,13 +145,13 @@ class SpellingCorrectionTestCase(unittest.TestCase):
         docname = 'Test document'
         self.d = Document()
         self.d.import_colmep_format(filename, docname)
-        Transformers.transform_tokenise_sentences(self.d)
-        Transformers.transform_add_text_to_sentences(self.d)
+        self.d.transform_tokenise_sentences()
+        self.d.transform_add_text_to_sentences()
         return super().setUp()
     
     # check that spelling updates are applied correctly
     def test_remove_asterisks(self):
-        Transformers.transform_remove_asterisks(self.d)
+        self.d.transform_remove_asterisks()
         # check the words have been correctly updated and the old orthography stored
         # word 15 in sentence 3 is *that*
         word = self.d.get_word_by_index(2, 14)
