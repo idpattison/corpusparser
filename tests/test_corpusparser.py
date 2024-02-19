@@ -1,6 +1,8 @@
 import unittest
 
-from src.document import Document, Corpus
+from src.document import Document
+from src.transformers import Transformers
+
 import xml.etree.ElementTree as ET
 
 class ImportColmepBasicTestCase(unittest.TestCase):
@@ -101,6 +103,41 @@ class UtilityFunctionsTestCase(unittest.TestCase):
         # check the document name has been cloned
         self.assertEqual(d_new.get('name'), 'Test document')
         
+    
+class SentencesAndWordsTestCase(unittest.TestCase):    
+
+    # import the xml file into a Document and process sentences
+    def setUp(self) -> None:
+        filename = 'tests/data/input.xml'
+        docname = 'Test document'
+        self.d = Document()
+        self.d.import_colmep_format(filename, docname)
+        Transformers.transform_tokenise_sentences(self.d)
+        Transformers.transform_add_text_to_sentences(self.d)
+        return super().setUp()
+    
+    # check that we can get all sentences from the text
+    def test_get_sentence_text(self):
+        sents = self.d.get_sentence_text()
+        # check this is the right size
+        self.assertEqual(len(sents), 39)
+        # check a given sentence
+        self.assertIn('As the philosopher', sents[2])
+
+    # check that we can get the sentence elements
+    def test_get_sentence_element(self):
+        sents = self.d.get_sentence_elements()
+        # check this is the right size
+        self.assertEqual(len(sents), 39)
+        
+    # check that we can retrieve a given sentence and word
+    def test_get_specific_word(self):
+        # the 3rd word of the 3rd sentence should be 'philosopher'
+        sent = self.d.get_sentence_by_index(2)
+        word = self.d.get_word_by_index_in_sentence(sent, 2)
+        self.assertEqual(word.text, 'philosopher')
+
+
 
 
 if __name__ == '__main__':

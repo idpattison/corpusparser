@@ -1,13 +1,6 @@
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET   
 
-# create some classes to help with type-checking
-class Corpus(ET.Element):
-    # count elements within the corpus
-    def count_elements(element: ET.Element, type: str) -> int:
-        return _count_elements(element, type)
-    
-
-# Document class handles everything aroun importing and exporting documents
+# Document class handles everything around importing and exporting documents
 class Document(ET.Element):
     def __init__(self) -> None:
         super().__init__('document')
@@ -82,23 +75,37 @@ class Document(ET.Element):
         return _count_elements(element, type)
     
     # clone a document
-    def clone_document(self):
+    def clone_document(self) -> None:
         return _clone_element(self)
 
     # clear a document
-    def clear_children(self):
+    def clear_children(self) -> None:
         return _clear_children(self)
 
+    # return a list of all sentences in the document
+    def get_sentence_text(self) -> list:
+        sents = []
+        for s in self.iter('s'):
+            sents.append(s.get('text'))
+        return sents
+
+    # get a sentence from its index
+    def get_sentence_by_index(self, index:int) -> ET.Element:
+        return self.findall('s')[index]
+    
+    # get a word from its index in a sentence
+    def get_word_by_index_in_sentence(self, sentence: ET.Element, index:int) -> ET.Element:
+        return sentence.findall('w')[index]
+    
+    # get all sentence elements
+    def get_sentence_elements(self) -> list:
+        return self.findall('s')
 
 
 
-class Sentence(ET.Element):
-    def __init__(self) -> None:
-        super().__init__('s')
 
-class Word(ET.Element):
-    def __init__(self) -> None:
-        super().__init__('w')
+
+
 
 # create a new deep copy of any element in the tree
 def _clone_element(element: ET.Element) -> ET.Element:

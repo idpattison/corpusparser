@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from src.document import Document, Sentence
+from src.document import Document
 
 # A set of classes which transform the corpus tree from one state to another
 class Transformers():
@@ -41,8 +41,7 @@ class Transformers():
                 if elem.tag == 'w':
                     # if there is no sentence, create one, append it to the document
                     if s == None:
-                        s = Sentence()
-                        d.append(s)
+                        s = ET.SubElement(d, 's')
 
                     # add the word to the sentence
                     # TODO - do we need to clone this?
@@ -61,6 +60,17 @@ class Transformers():
                     else:
                         s.append(elem) 
 
+    def transform_add_text_to_sentences(d: Document) -> None:
+        # iterate through the sentences, for each one
+        # concatenate the words and add to a text attribute in the sentence
+        for sentence in d.iter('s'):
+            words = []
+            for w in sentence.iter('w'):
+                if w.text != None:
+                    words.append(w.text)
+            if len(words) > 0:
+                text = ' '.join(words)
+                sentence.set('text', text)
 
         
 
@@ -70,5 +80,4 @@ def _period_tokenisation_model(word_list, index: int) -> bool:
     if word_list[index].text == '.':
         return True
     return False
-    
 
