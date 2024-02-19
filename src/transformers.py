@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 from src.document import Document
+import re
 
 # A set of classes which transform the corpus tree from one state to another
 class Transformers():
@@ -72,6 +73,10 @@ class Transformers():
                 text = ' '.join(words)
                 sentence.set('text', text)
 
+    def transform_remove_asterisks(d: Document) -> None:
+        _update_spellings(d, '\*', '')
+
+
         
 
 # Utility functions
@@ -80,4 +85,13 @@ def _period_tokenisation_model(word_list, index: int) -> bool:
     if word_list[index].text == '.':
         return True
     return False
+
+def _update_spellings(d: Document, match: str, replace: str) -> None:
+    # for each word, check if it matches the regex pattern
+    # if so, make corrections, and add the original orthography to the word as an attribute
+    pattern = re.compile(match)
+    for w in d.iter('w'):
+        if pattern.match(w.text):
+            w.set('ortho', w.text)
+            w.text = pattern.sub(replace, w.text)
 

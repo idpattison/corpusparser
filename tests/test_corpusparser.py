@@ -138,6 +138,27 @@ class SentencesAndWordsTestCase(unittest.TestCase):
         self.assertEqual(word.text, 'philosopher')
 
 
+class SpellingCorrectionTestCase(unittest.TestCase):    
+
+    # import the xml file into a Document and process sentences
+    def setUp(self) -> None:
+        filename = 'tests/data/input.xml'
+        docname = 'Test document'
+        self.d = Document()
+        self.d.import_colmep_format(filename, docname)
+        Transformers.transform_tokenise_sentences(self.d)
+        Transformers.transform_add_text_to_sentences(self.d)
+        return super().setUp()
+    
+    # check that spelling updates are applied correctly
+    def test_remove_asterisks(self):
+        Transformers.transform_remove_asterisks(self.d)
+        # check the words have been correctly updated and the old orthography stored
+        # word 15 in sentence 3 is *that*
+        word = self.d.get_word_by_index(2, 14)
+        self.assertEqual(word.text, 'that')
+        self.assertEqual(word.get('ortho'), '*that*')
+
 
 
 if __name__ == '__main__':

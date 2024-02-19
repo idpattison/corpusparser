@@ -97,10 +97,44 @@ class Document(ET.Element):
     def get_word_by_index_in_sentence(self, sentence: ET.Element, index:int) -> ET.Element:
         return sentence.findall('w')[index]
     
+    # get a word from its sentence & word index
+    def get_word_by_index(self, sentence_index: int, word_index:int) -> ET.Element:
+        s = self.get_sentence_by_index(sentence_index)
+        return self.get_word_by_index_in_sentence(s, word_index)
+    
     # get all sentence elements
     def get_sentence_elements(self) -> list:
         return self.findall('s')
 
+    # get all word elements
+    def get_word_elements(self) -> list:
+        return self.findall('w')
+
+    # get count of sentences
+    def get_sentence_count(self) -> int:
+        return len(self.get_sentence_elements())
+    
+    # get count of words
+    def get_word_count(self) -> int:
+        return len(self.get_word_elements())
+    
+    # get count of words in a given sentence
+    def get_sentence_length(sentence: ET.Element) -> int:
+        return len(sentence.findall('w'))
+    
+    # get sentence length - longest, shortest, average
+    def get_longest_sentence(self) -> int:
+        return max(self._get_sentence_lengths())
+    def get_shortest_sentence(self) -> int:
+        return min(self._get_sentence_lengths())
+    def get_average_sentence_length(self) -> int:
+        lengths = self._get_sentence_lengths()
+        return round(sum(lengths) / len(lengths))
+    def _get_sentence_lengths(self) -> list:
+        sent_lengths = []
+        for s in self.findall('s'):
+            sent_lengths.append(len(s.findall('w')))
+        return sent_lengths
 
 
 
