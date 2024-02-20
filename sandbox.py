@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from src.document import Document
+from src.document import Document, Sentence
 
 filename = 'tests/data/input.xml'
 d = Document()
@@ -10,13 +10,13 @@ d.transform_tokenise_sentences()
 d.transform_remove_asterisks()
 d.transform_add_text_to_sentences()
 # get sentences
-sents = d.get_sentence_text()
-for s in sents:
-    print(s, '\n')
-# print the first part of the XML to check
-ET.indent(d, space='  ')
-xml = ET.tostring(d, encoding='unicode')
-print(xml[:5000])
+# sents = d.get_sentence_text()
+# for s in sents:
+#     print(s, '\n')
+# # print the first part of the XML to check
+# ET.indent(d, space='  ')
+# xml = ET.tostring(d, encoding='unicode')
+# print(xml[:5000])
 # print('Sentences :', d.get_sentence_count())
 # print('Words     :', d.get_word_count())
 # print('Longest   :', d.get_longest_sentence())

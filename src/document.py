@@ -250,3 +250,5 @@ def _update_spellings(d: Document, match: str, replace: str) -> None:
         if pattern.match(w.text):
             w.set('ortho', w.text)
             w.text = pattern.sub(replace, w.text)
+
+
