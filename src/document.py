@@ -1,75 +1,171 @@
+from src.corpus_element import CorpusElement
 import xml.etree.ElementTree as ET   
 import re
 
-# Document class handles everything around importing and exporting documents
-class Document(ET.Element):
-    def __init__(self) -> None:
-        super().__init__('document')
+# Document class represents a complete text document
 
-    def import_colmep_format(self, filename: str, name: str, basic=False) -> None:
-        # ensure the document is empty
-        self.clear()
+class Document(CorpusElement):
 
-        # import the file into basic XML format and name it
-        self.import_colmep_to_basic(filename)
-        self.set('name', name)
+    # initialise with the provided underlying element
+    def __init__(self, element: ET.Element) -> None:
+        self.e = element
+        self.e.tag = 'document'
 
-        # if required, comvert from basic format to standard
-        if not basic:
-            self.convert_basic_to_standard()
+    ##############################################################################
+    # Object creation methods - overridden from CorpusParser
+
+    # create a document from an underlying element
+    def create_from_element(e: ET.Element):
+        return Document(e)
+    
+    # create a document from a text string
+    def create_from_xml_string(text: str):
+        new_e = ET.fromstring(text)
+        return Document.create_from_element(new_e)
+    
+    # create a document from a file
+    def create_from_xml_file(filename: str):
+        tree = ET.parse(filename)
+        return Document.create_from_element(tree.getroot())
+    
+    # create a document from new
+    def create_new():
+        new_e = ET.Element('document')
+        return Document(new_e)
+
+    # create a document as a new object in the tree
+    def append_new(parent, tag: str):
+        new_e = ET.SubElement(parent.get_underlying_element(), tag)
+        return Document(new_e)
+
+    ##############################################################################
+
+    # create a document from a non-XML, or a non-standard XML file
+    def create_from_nonstandard_file(filename:str, docname: str, format:str):
+
+        if format == 'colmep':
+
+            input_tree = ET.parse(filename)
+            d = Document.create_new()
+
+            # traverse the input tree and copy corresponding (but adjusted) elements into our new Document
+
+            for elem in input_tree.getroot().iter():
+                # the iterator picks up the document element itself, so skip that
+                if elem.tag != 'document':
+
+                    # for each child item, copy the element and append it to the new document root
+                    new_elem = ET.SubElement(d.get_underlying_element(), elem.tag, elem.attrib)
+                    new_elem.text = elem.text
+
+                    # if there is a tail, create a new <text> element using the tail text
+                    if elem.tail != None:
+                        if elem.tail != '' and elem.tail != '\n':
+                            text_elem = ET.SubElement(d.get_underlying_element(), 'text')
+                            text_elem.text = elem.tail
+
+            # at this stage the XML is in an intermediate stage, we now need to convert to our document-word form
+            # set up current document, sentence and word
+            w = None
+
+            # clone the document and clear the original - it will be easier to copy across than to keep track of iterators
+            d_old = d.clone_document()
+            d.clear()
+            d.set_name(docname)
+
+            # iterate across the existing document
+            for elem in d_old.iter():
+                    
+                # if this is a text element
+                if elem.tag == 'text':
+
+                    # split the text into tokens based on whitespace
+                    tokens = elem.text.split()
+
+                    # iterate across each token
+                    for token in tokens:
+                        # add the token to the document as a w element
+                        # NB this will include punctuation
+                        w = ET.SubElement(d.get_underlying_element(), 'w')
+                        w.text = token
+
+                # if this is a page, comment or footnote tag, copy it into the document
+                if elem.tag in ['newpage', 'newfolio', 'comment', 'footnote']:
+                    tag = ET.SubElement(d.get_underlying_element(), elem.tag)
+                    tag.text = elem.text
+                    attribs = elem.attrib.items()
+                    tag.attrib.update(attribs)
+
+            return d
+        # end of colmep format
+                    
 
 
-    def import_colmep_to_basic(self, filename: str) -> None:
-        # parse the file into a temporary ElementTree and iterate across it
-        tmp_tree = ET.parse(filename)
 
-        for elem in tmp_tree.getroot().iter():
+    # def import_colmep_format(self, filename: str, name: str, basic=False) -> None:
+    #     # ensure the document is empty
+    #     self.clear()
 
-            # the iterator picks up the document element itself, so skip that
-            if elem.tag != 'document':
+    #     # import the file into basic XML format and name it
+    #     self.import_colmep_to_basic(filename)
+    #     self.set('name', name)
 
-                # for each child item, copy the element and append it to the document root
-                new_elem = ET.SubElement(self, elem.tag, elem.attrib)
-                new_elem.text = elem.text
-
-                # if there is a tail, create a new <text> element using the tail text
-                if elem.tail != None:
-                    if elem.tail != '' and elem.tail != '\n':
-                        text_elem = ET.SubElement(self, 'text')
-                        text_elem.text = elem.tail
+    #     # if required, comvert from basic format to standard
+    #     if not basic:
+    #         self.convert_basic_to_standard()
 
 
-    def convert_basic_to_standard(self) -> None:
-        # set up current document, sentence and word
-        w = None
+    # def import_colmep_to_basic(self, filename: str) -> None:
+    #     # parse the file into a temporary ElementTree and iterate across it
+    #     tmp_tree = ET.parse(filename)
 
-        # clone the document and clear the original - it will be easier to copy across than to keep track of iterators
-        d_old = self.clone_document()
-        self.clear()
-        self.set('name', d_old.get('name'))
+    #     for elem in tmp_tree.getroot().iter():
 
-        # iterate across the existing document
-        for elem in d_old.iter():
+    #         # the iterator picks up the document element itself, so skip that
+    #         if elem.tag != 'document':
+
+    #             # for each child item, copy the element and append it to the document root
+    #             new_elem = ET.SubElement(self, elem.tag, elem.attrib)
+    #             new_elem.text = elem.text
+
+    #             # if there is a tail, create a new <text> element using the tail text
+    #             if elem.tail != None:
+    #                 if elem.tail != '' and elem.tail != '\n':
+    #                     text_elem = ET.SubElement(self, 'text')
+    #                     text_elem.text = elem.tail
+
+
+    # def convert_basic_to_standard(self) -> None:
+    #     # set up current document, sentence and word
+    #     w = None
+
+    #     # clone the document and clear the original - it will be easier to copy across than to keep track of iterators
+    #     d_old = self.clone_document()
+    #     self.clear()
+    #     self.set('name', d_old.get('name'))
+
+    #     # iterate across the existing document
+    #     for elem in d_old.iter():
                 
-            # if this is a text element
-            if elem.tag == 'text':
+    #         # if this is a text element
+    #         if elem.tag == 'text':
 
-                # split the text into tokens based on whitespace
-                tokens = elem.text.split()
+    #             # split the text into tokens based on whitespace
+    #             tokens = elem.text.split()
 
-                # iterate across each token
-                for token in tokens:
-                    # add the token to the document as a w element
-                    # NB this will include punctuation
-                    w = ET.SubElement(self, 'w')
-                    w.text = token
+    #             # iterate across each token
+    #             for token in tokens:
+    #                 # add the token to the document as a w element
+    #                 # NB this will include punctuation
+    #                 w = ET.SubElement(self, 'w')
+    #                 w.text = token
 
-            # if this is a page, comment or footnote tag, copy it into the document
-            if elem.tag in ['newpage', 'newfolio', 'comment', 'footnote']:
-                tag = ET.SubElement(self, elem.tag)
-                tag.text = elem.text
-                attribs = elem.attrib.items()
-                tag.attrib.update(attribs)
+    #         # if this is a page, comment or footnote tag, copy it into the document
+    #         if elem.tag in ['newpage', 'newfolio', 'comment', 'footnote']:
+    #             tag = ET.SubElement(self, elem.tag)
+    #             tag.text = elem.text
+    #             attribs = elem.attrib.items()
+    #             tag.attrib.update(attribs)
     
     # count elements within the document
     def count_elements(element: ET.Element, type: str) -> int:
@@ -77,7 +173,7 @@ class Document(ET.Element):
     
     # clone a document
     def clone_document(self) -> None:
-        return _clone_element(self)
+        return _clone_element(self.get_underlying_element())
 
     # clear a document
     def clear_children(self) -> None:
@@ -250,5 +346,3 @@ def _update_spellings(d: Document, match: str, replace: str) -> None:
         if pattern.match(w.text):
             w.set('ortho', w.text)
             w.text = pattern.sub(replace, w.text)
-
-
