@@ -279,11 +279,11 @@ class Document(CorpusElement):
 #         return True
 #     return False
 
-def _update_spellings(d: Document, match: str, replace: str) -> None:
-    # for each word, check if it matches the regex pattern
-    # if so, make corrections, and add the original orthography to the word as an attribute
-    pattern = re.compile(match)
-    for w in d.iter('w'):
-        if pattern.match(w.text):
-            w.set('ortho', w.text)
-            w.text = pattern.sub(replace, w.text)
+# def _update_spellings(d: Document, match: str, replace: str) -> None:
+#     # for each word, check if it matches the regex pattern
+#     # if so, make corrections, and add the original orthography to the word as an attribute
+#     pattern = re.compile(match)
+#     for w in d.iter('w'):
+#         if pattern.match(w.text):
+#             w.set('ortho', w.text)
+#             w.text = pattern.sub(replace, w.text)

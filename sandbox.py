@@ -8,7 +8,7 @@ d = Document.create_from_nonstandard_file(filename, docname, format)
 # print(d.tag)
 d.transform_tokenise_sentences()
 # NB make sure to update spellings before adding text to sentences
-# d.transform_remove_asterisks()
+d.transform_remove_asterisks()
 d.transform_add_text_to_sentences()
 # get sentences
 sents = d.get_sentences_as_text()

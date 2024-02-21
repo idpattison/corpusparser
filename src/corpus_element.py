@@ -5,6 +5,7 @@
 
 
 import xml.etree.ElementTree as ET
+import re
 
 class CorpusElement():
 
@@ -306,8 +307,17 @@ class CorpusElement():
                 text = ' '.join(words)
                 sentence.text = text
 
-    # def transform_remove_asterisks(self) -> None:
-    #     _update_spellings(self, '\*', '')
+    def transform_remove_asterisks(self) -> None:
+        self.update_spellings(match='\*', replace='')
+                
+    def update_spellings(self, match: str, replace: str) -> None:
+        # for each word, check if it matches the regex pattern
+        # if so, make corrections, and add the original orthography to the word as an attribute
+        pattern = re.compile(match)
+        for w in self.iter('w'):
+            if pattern.match(w.text):
+                w.set('ortho', w.text)
+                w.text = pattern.sub(replace, w.text)
 
 # END OF CLASS
 ##############################################################################

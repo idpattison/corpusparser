@@ -125,24 +125,29 @@ class SentencesAndWordsTestCase(unittest.TestCase):
 
 # class SpellingCorrectionTestCase(unittest.TestCase):    
 
-#     # import the xml file into a Document and process sentences
-#     def setUp(self) -> None:
-#         filename = 'tests/data/input.xml'
-#         docname = 'Test document'
-#         self.d = Document()
-#         self.d.import_colmep_format(filename, docname)
-#         self.d.transform_tokenise_sentences()
-#         self.d.transform_add_text_to_sentences()
-#         return super().setUp()
+    # import the xml file into a Document and process sentences
+    def setUp(self) -> None:
+        filename = 'tests/data/input.xml'
+        docname = 'Test document'
+        format = 'colmep'
+        self.d = Document.create_from_nonstandard_file(filename, docname, format)
+        self.d.transform_tokenise_sentences()
+        self.d.transform_add_text_to_sentences()
+        return super().setUp()
     
-#     # check that spelling updates are applied correctly
-#     def test_remove_asterisks(self):
-#         self.d.transform_remove_asterisks()
-#         # check the words have been correctly updated and the old orthography stored
-#         # word 15 in sentence 3 is *that*
-#         word = self.d.get_word_by_index(2, 14)
-#         self.assertEqual(word.text, 'that')
-#         self.assertEqual(word.get('ortho'), '*that*')
+    # check that spelling updates are applied correctly
+    def test_remove_asterisks(self):
+        self.d.transform_remove_asterisks()
+        # check the words have been correctly updated and the old orthography stored
+        # word 15 in sentence 3 is *that*
+        word = self.d.get_word_element_by_sentence_and_word_index(2, 14)
+        self.assertEqual(word.text, 'that')
+        self.assertEqual(word.get('ortho'), '*that*')
+        # check another word
+        # word 2 in sentence 5 is vpo*n*
+        # word = self.d.get_word_element_by_sentence_and_word_index(4, 1)
+        # self.assertEqual(word.text, 'vpon')
+        # self.assertEqual(word.get('ortho'), 'vpo*n*')
 
 
 
