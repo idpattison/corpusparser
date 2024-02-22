@@ -33,7 +33,7 @@ print('Words     :', d.get_word_count())
 print('Longest   :', d.get_longest_sentence())
 print('Shortest  :', d.get_shortest_sentence())
 print('Average   :', d.get_average_sentence_length())
-print(d.word_frequency_contains('v'))
+print(d.word_frequency_starts_with('w'))
 # print(d.word_frequency_contains_punctuation())
 print(d.get_xml_tags())
 
@@ -46,5 +46,9 @@ t = s.get_attribute('conv-text')
 print(t[:18])
 
 # write to file
-out_file = 'tests/data/output.xml'
-d.to_xml_file(out_file, indent=2)
+# out_file = 'tests/data/output.xml'
+# d.to_xml_file(out_file, indent=2)
+
+conc = d.concordance_in(['which', 'whiche', 'whyche'], separator='@')
+for c in conc:
+    print(c)

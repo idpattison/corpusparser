@@ -203,7 +203,6 @@ class CorpusElement():
     def word_frequency_contains_punctuation(self) -> dict:
         pattern = '.*[^A-Za-z0-9].*'
         return self.word_frequency(pattern)
-
     
     # get list of XML tags used
     def get_xml_tags(self) -> list:
@@ -212,6 +211,31 @@ class CorpusElement():
             if elem.tag not in tag_list:
                 tag_list.append(elem.tag)
         return tag_list
+    
+    # concordance output
+    def concordance(self, keyword: str, separator='\t', context_length=25) -> list:
+        return self.concordance_in([keyword], separator, context_length)
+    
+    def concordance_in(self, keywords: list, separator='\t', context_length=25) -> list:
+        results = []
+        words = self.get_words_as_text_list()
+        for i in range(len(words)):
+            if words[i].lower() in keywords:
+                left_start = max(0, i - context_length)
+                left_end = i
+                right_start = i + 1
+                right_end = min(len(words), i + context_length + 1)
+                left_context = ''
+                right_context = ''
+                if i != 0:  # keyword is not the first word in the sample
+                    left_context = ' '.join(words[left_start:left_end])
+                if i != len(words) - 1:  # keyword is not the last word in the sample
+                    right_context = ' '.join(words[right_start:right_end])
+                result = left_context + separator + words[i] + separator + right_context
+                results.append(result)
+        return results         
+        
+
 
 
 
