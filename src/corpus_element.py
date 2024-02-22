@@ -5,6 +5,7 @@
 
 
 import xml.etree.ElementTree as ET
+import collections
 import re
 
 class CorpusElement():
@@ -87,11 +88,14 @@ class CorpusElement():
     ##############################################################################
 
     # return the text of all sub-elements of a given type contained in this element as a list of strings
-    def get_children_as_text(self, tag: str) -> list:
+    def get_children_as_text_list(self, tag: str) -> list:
         children = []
         for c in self.e.iter(tag):
             children.append(c.text)
         return children
+    
+    def get_children_as_text(self, tag: str, separator=' ') -> str:
+        return separator.join(self.get_children_as_text_list(tag))
 
     # return all sub-elements of a given type contained in this element as a list
     def get_children_as_elements(self, tag: str) -> list:
@@ -101,13 +105,20 @@ class CorpusElement():
         return children
 
     # return all sentences as a list of strings or elements
-    def get_sentences_as_text(self) -> list:
-        return self.get_children_as_text('s')
+    def get_sentences_as_text_list(self) -> list:
+        sent_list = []
+        sents = self.get_sentences_as_elements()
+        for s in sents:
+            ce = CorpusElement.create_from_element(s)
+            sent_list.append(ce.get_children_as_text('w'))
+        return sent_list
     def get_sentences_as_elements(self) -> list:
         return self.get_children_as_elements('s')
 
     # return all word as a list of strings or elements
-    def get_words_as_text(self) -> list:
+    def get_words_as_text_list(self) -> list:
+        return self.get_children_as_text_list('w')
+    def get_words_as_text(self) -> str:
         return self.get_children_as_text('w')
     def get_words_as_elements(self) -> list:
         return self.get_children_as_elements('w')
@@ -169,6 +180,37 @@ class CorpusElement():
     #     return len(sentence.iter('w'))
 
 
+    ##############################################################################
+    # Find methods
+    ##############################################################################
+
+    # return a dictonary with the frequency of each word in the element
+    def word_frequency(self, pattern='') -> dict:
+        words = self.get_words_as_text_list()
+        if pattern != '':
+            words = [w for w in words if re.match(pattern, w)]
+        return collections.Counter(words)
+    
+    def word_frequency_starts_with(self, letter: str) -> dict:
+        pattern = '[' + str.upper(letter) + str.lower(letter) + '].*'
+        return self.word_frequency(pattern)
+    
+    def word_frequency_contains(self, text: str) -> dict:
+        pattern = '.*' + text + '.*'
+        return self.word_frequency(pattern)
+    
+    def word_frequency_contains_punctuation(self) -> dict:
+        pattern = '.*[^A-Za-z0-9].*'
+        return self.word_frequency(pattern)
+
+    
+    # get list of XML tags used
+    def get_xml_tags(self) -> list:
+        tag_list = []
+        for elem in self.iter():
+            if elem.tag not in tag_list:
+                tag_list.append(elem.tag)
+        return tag_list
 
 
 
@@ -295,9 +337,10 @@ class CorpusElement():
                     else:
                         s.append(elem) 
 
-    def transform_add_text_to_sentences(self) -> None:
+    def transform_add_convenience_text_to_sentences(self) -> None:
         # iterate through the sentences, for each one
         # concatenate the words and add to a text attribute in the sentence
+        #TODO - this should use get_children_as_text()
         for sentence in self.e.iter('s'):
             words = []
             for w in sentence.iter('w'):
@@ -305,12 +348,27 @@ class CorpusElement():
                     words.append(w.text)
             if len(words) > 0:
                 text = ' '.join(words)
-                sentence.text = text
+                sentence.set('conv-text', text)
 
     def transform_remove_asterisks(self) -> None:
-        self.update_spellings(match='\*', replace='')
+        self.update_spellings(match='*', replace='')
+
+    def transform_v_to_u(self) -> None:
+        self.update_spellings_regex(match='v([bcdfghjklmnpqrstvwxz])', replace='u\\1')
+
+    def transform_u_to_v(self) -> None:
+        self.update_spellings_regex(match='([aeiouy])u([aeiouy])', replace='\\1v\\2')
+
                 
     def update_spellings(self, match: str, replace: str) -> None:
+        # for each word, check if it matches the match pattern
+        # if so, make corrections, and add the original orthography to the word as an attribute
+        for w in self.iter('w'):
+            if match in w.text:
+                w.set('ortho', w.text)
+                w.text = w.text.replace(match, replace)
+
+    def update_spellings_regex(self, match: str, replace: str) -> None:
         # for each word, check if it matches the regex pattern
         # if so, make corrections, and add the original orthography to the word as an attribute
         pattern = re.compile(match)
