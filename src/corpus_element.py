@@ -91,7 +91,8 @@ class CorpusElement():
     def get_children_as_text_list(self, tag: str) -> list:
         children = []
         for c in self.e.iter(tag):
-            children.append(c.text)
+            if c.text != None:
+                children.append(c.text)
         return children
     
     def get_children_as_text(self, tag: str, separator=' ') -> str:
@@ -273,7 +274,15 @@ class CorpusElement():
             space = ' ' * indent
             ET.indent(self.e, space)
         return ET.tostring(self.e, encoding)
-    #TODO - write to file
+    
+    # write to file
+    def to_xml_file(self, filename, indent=0, encoding='unicode') -> None:
+        xml = self.to_xml_string(indent, encoding)
+        try:
+            with open(filename, 'w') as f:
+                f.write(xml)
+        except IOError:
+            print('IOError: Could not write to file ' + filename)
 
 
 
@@ -341,6 +350,8 @@ class CorpusElement():
         # iterate through the sentences, for each one
         # concatenate the words and add to a text attribute in the sentence
         #TODO - this should use get_children_as_text()
+        # however that would entail creating a Sentence object for each iteration
+        # leave for now
         for sentence in self.e.iter('s'):
             words = []
             for w in sentence.iter('w'):
@@ -354,10 +365,13 @@ class CorpusElement():
         self.update_spellings(match='*', replace='')
 
     def transform_v_to_u(self) -> None:
-        self.update_spellings_regex(match='v([bcdfghjklmnpqrstvwxz])', replace='u\\1')
+        self.update_spellings_regex(match='v([bcdfghjklmnpqrstvwxz].*)', replace='u\\1')
 
     def transform_u_to_v(self) -> None:
-        self.update_spellings_regex(match='([aeiouy])u([aeiouy])', replace='\\1v\\2')
+        self.update_spellings_regex(match='(.*[aeiouy])u([aeiouy].*)', replace='\\1v\\2')
+
+    def transform_ye_caret_to_the(self) -> None:
+        self.update_spellings('y^e^', 'the')
 
                 
     def update_spellings(self, match: str, replace: str) -> None:

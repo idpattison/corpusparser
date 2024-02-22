@@ -125,7 +125,7 @@ class SentencesAndWordsTestCase(unittest.TestCase):
 
 
 
-# class SpellingCorrectionTestCase(unittest.TestCase):    
+class SpellingCorrectionTestCase(unittest.TestCase):    
 
     # import the xml file into a Document and process sentences
     def setUp(self) -> None:

@@ -12,6 +12,7 @@ d.transform_tokenise_sentences()
 d.transform_remove_asterisks()
 d.transform_v_to_u()
 d.transform_u_to_v()
+d.transform_ye_caret_to_the()
 d.transform_add_convenience_text_to_sentences()
 # get sentences
 # sents = d.get_sentences_as_text_list()
@@ -43,3 +44,7 @@ print(len(sents))
 s = Sentence.create_from_element(sents[2])
 t = s.get_attribute('conv-text')
 print(t[:18])
+
+# write to file
+out_file = 'tests/data/output.xml'
+d.to_xml_file(out_file, indent=2)
