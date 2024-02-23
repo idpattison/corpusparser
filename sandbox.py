@@ -14,10 +14,14 @@ d.transform_v_to_u()
 d.transform_u_to_v()
 d.transform_ye_caret_to_the()
 d.transform_add_convenience_text_to_sentences()
+
 # get sentences
-# sents = d.get_sentences_as_text_list()
-# for s in sents:
-#     print(s, '\n')
+# sents = d.get_sentences()
+# s = sents[0]
+sents = d.get_sentences_as_text_list()
+for s in sents:
+    print(s, '\n')
+
 # print the first part of the XML to check
 # xml = d.to_xml_string(indent=4)
 # print(xml[:5000])

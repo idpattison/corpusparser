@@ -1,4 +1,5 @@
 from src.corpus_element import CorpusElement
+from src.word import Word
 import xml.etree.ElementTree as ET   
 
 # Sentence class represents a sentence in the text
@@ -39,3 +40,9 @@ class Sentence(CorpusElement):
     
     ##############################################################################
 
+    def get_words(self) -> list:
+        word_elems = self.get_words_as_elements()
+        word_list = []
+        for w in word_elems:
+            word_list.append(Word.create_from_element(w))
+        return word_list

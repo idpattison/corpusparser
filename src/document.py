@@ -1,4 +1,6 @@
 from src.corpus_element import CorpusElement
+from src.sentence import Sentence
+from src.word import Word
 import xml.etree.ElementTree as ET   
 import re
 
@@ -105,8 +107,21 @@ class Document(CorpusElement):
         # end of colmep format
                     
 
+    ##############################################################################
 
-
+    def get_sentences(self) -> list:
+        sent_elems = self.get_sentences_as_elements()
+        sent_list = []
+        for s in sent_elems:
+            sent_list.append(Sentence.create_from_element(s))
+        return sent_list
+    
+    def get_words(self) -> list:
+        word_elems = self.get_words_as_elements()
+        word_list = []
+        for w in word_elems:
+            word_list.append(Word.create_from_element(w))
+        return word_list
     
     # count elements within the document
     # def count_elements(element: ET.Element, type: str) -> int:

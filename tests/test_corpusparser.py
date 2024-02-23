@@ -102,11 +102,16 @@ class SentencesAndWordsTestCase(unittest.TestCase):
         sents = self.d.get_sentences_as_elements()
         # check this is the right size
         self.assertEqual(len(sents), 39)
-        # check we can create Sentence objects
-        # s = Sentence.create_from_element(sents[2])
-        # t = sents[2].get('conv-text')
-        # print(t)
-        # self.assertEqual('As the philosopher', t[:18])
+
+    # check we can get Sentence objects
+    def test_get_sentences(self):
+        sents = self.d.get_sentences()
+        # check that the elements are Sentences
+        s = sents[2]
+        self.assertIsInstance(s, Sentence)
+        # check a given sentence
+        t = s.get_attribute('conv-text')
+        self.assertEqual('As the philosopher', t[:18])
         
     # check that we can retrieve a given sentence and word
     def test_get_specific_word(self):
@@ -146,9 +151,9 @@ class SpellingCorrectionTestCase(unittest.TestCase):
         self.assertEqual(word.get('ortho'), '*that*')
         # check another word
         # word 2 in sentence 5 is vpo*n*
-        # word = self.d.get_word_element_by_sentence_and_word_index(4, 1)
-        # self.assertEqual(word.text, 'vpon')
-        # self.assertEqual(word.get('ortho'), 'vpo*n*')
+        word = self.d.get_word_element_by_sentence_and_word_index(4, 1)
+        self.assertEqual(word.text, 'vpon')
+        self.assertEqual(word.get('ortho'), 'vpo*n*')
 
 
 
