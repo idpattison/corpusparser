@@ -59,12 +59,14 @@ class Sentence(CorpusElement):
     ##############################################################################
     
     def prepare_parser() -> None:
+        global nlp
         benepar.download('benepar_en3')
         nlp = spacy.load('en_core_web_md')
         nlp.add_pipe('benepar', config={'model': 'benepar_en3'})
 
     def parse(self, add_parse_string=False, restructure=False) -> None:
-        doc = nlp(self.get_words_as_text())
+        text = self.get_words_as_text()
+        doc = nlp(text)
         sent = list(doc.sents)[0]
         parse = sent._.parse_string
 
@@ -74,7 +76,7 @@ class Sentence(CorpusElement):
         
         # restructure the sentence tree if required
         if restructure:
-            restructure(parse)
+            self.restructure(parse)
 
         # items = parse.split(' ')
         # for i in items:
@@ -120,7 +122,7 @@ class Sentence(CorpusElement):
                 # Create a phrase element - mark its type
                 # Add it to the current phrase element
                 new_phrase = ET.SubElement(phrase_stack[-1], 'phr')
-                new_phrase.set_attribute('type', item[1:])
+                new_phrase.set('type', item[1:])
                 # Add it to phrase_stack (NB the most recent item in this stack is the current phrase)
                 phrase_stack.append(new_phrase)
 
@@ -136,12 +138,12 @@ class Sentence(CorpusElement):
                 # Add it to the current phrase element
                 phrase_stack[-1].append(word)
                 # Set the pos type to the current pos type
-                word.set_attribute('pos', pos_type)
+                word.set('pos', pos_type)
                 # Count the parentheses at the end - this will be used later
-                count = item.count(')')
+                count = item.count(')') - 1
                 # If the next item is a non-word, also add that to the current phrase
                 # Repeat until we are at a word again
-                while element_list[0].get_tag != 'w':
+                while element_list[0].tag != 'w':
                     nonword = element_list.popleft()
                     phrase_stack[-1].append(nonword)
                 # Now count the parentheses - subtract one - pop that many phrases off phrase_stack

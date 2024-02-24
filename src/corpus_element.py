@@ -88,18 +88,18 @@ class CorpusElement():
     ##############################################################################
 
     # return the text of all sub-elements of a given type contained in this element as a list of strings
-    def get_children_as_text_list(self, tag: str) -> list:
+    def get_children_as_text_list(self, tag=None) -> list:
         children = []
         for c in self.e.iter(tag):
             if c.text != None:
                 children.append(c.text)
         return children
     
-    def get_children_as_text(self, tag: str, separator=' ') -> str:
+    def get_children_as_text(self, tag=None, separator=' ') -> str:
         return separator.join(self.get_children_as_text_list(tag))
 
     # return all sub-elements of a given type contained in this element as a list
-    def get_children_as_elements(self, tag: str) -> list:
+    def get_children_as_elements(self, tag=None) -> list:
         children = []
         for c in self.e.iter(tag):
             children.append(c)
