@@ -2,6 +2,8 @@ import xml.etree.ElementTree as ET
 from src.document import Document
 from src.sentence import Sentence
 
+import benepar, spacy
+
 filename = 'tests/data/input.xml'
 docname = 'Dummy name'
 format = 'colmep'

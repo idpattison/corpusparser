@@ -2,6 +2,11 @@ from src.corpus_element import CorpusElement
 from src.word import Word
 import xml.etree.ElementTree as ET   
 
+import benepar, spacy
+
+# gloabl NLP pipe
+nlp = None
+
 # Sentence class represents a sentence in the text
 
 class Sentence(CorpusElement):
@@ -46,3 +51,22 @@ class Sentence(CorpusElement):
         for w in word_elems:
             word_list.append(Word.create_from_element(w))
         return word_list
+    
+    def prepare_parser() -> None:
+        benepar.download('benepar_en3')
+        nlp = spacy.load('en_core_web_md')
+        nlp.add_pipe('benepar', config={'model': 'benepar_en3'})
+
+    def parse():
+        doc = nlp("The right plesaunt and goodly historie of the foure sonnes of Aymon the which for the excellent endytyng of it , and for the notable prowes and great vertues that were in them : is no less pleasaunt to rede , then worthy to be knowen of all estates bothe hyghe and lowe .")
+        sent = list(doc.sents)[0]
+        parse = sent._.parse_string
+        items = parse.split(' ')
+        for i in items:
+            if i.startswith('('):
+                if i in ['(S', '(CP', '(IP', '(VP', '(NP', '(PP', '(ADJP', '(ADVP', '(CONJP', '(QP', '(DP']:
+                print('phrase: ', i)
+                else:
+                print('pos:    ', i)
+            else:
+                print('word:   ', i)
