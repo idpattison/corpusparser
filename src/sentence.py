@@ -1,5 +1,6 @@
 from src.corpus_element import CorpusElement
 from src.word import Word
+from collections import deque
 import xml.etree.ElementTree as ET   
 
 import benepar, spacy
@@ -51,22 +52,102 @@ class Sentence(CorpusElement):
         for w in word_elems:
             word_list.append(Word.create_from_element(w))
         return word_list
+
+    def get_words_as_text(self) -> str:
+        return self.get_children_as_text('w')
+    
+    ##############################################################################
     
     def prepare_parser() -> None:
         benepar.download('benepar_en3')
         nlp = spacy.load('en_core_web_md')
         nlp.add_pipe('benepar', config={'model': 'benepar_en3'})
 
-    def parse():
-        doc = nlp("The right plesaunt and goodly historie of the foure sonnes of Aymon the which for the excellent endytyng of it , and for the notable prowes and great vertues that were in them : is no less pleasaunt to rede , then worthy to be knowen of all estates bothe hyghe and lowe .")
+    def parse(self, add_parse_string=False, restructure=False) -> None:
+        doc = nlp(self.get_words_as_text())
         sent = list(doc.sents)[0]
         parse = sent._.parse_string
-        items = parse.split(' ')
-        for i in items:
-            if i.startswith('('):
-                if i in ['(S', '(CP', '(IP', '(VP', '(NP', '(PP', '(ADJP', '(ADVP', '(CONJP', '(QP', '(DP']:
-                print('phrase: ', i)
-                else:
-                print('pos:    ', i)
-            else:
-                print('word:   ', i)
+
+        # save the parse string to the sentence if required
+        if add_parse_string:
+            self.set_attribute('parse', parse)
+        
+        # restructure the sentence tree if required
+        if restructure:
+            restructure(parse)
+
+        # items = parse.split(' ')
+        # for i in items:
+        #     if i.startswith('('):
+        #         if i in ['(S', '(CP', '(IP', '(VP', '(NP', '(PP', '(ADJP', '(ADVP', '(CONJP', '(QP', '(DP']:
+        #         print('phrase: ', i)
+        #         else:
+        #         print('pos:    ', i)
+        #     else:
+        #         print('word:   ', i)
+
+    def restructure(self, parse) -> None:
+
+        # Copy all elements in the sentence to element_list
+        # this will include words and other tags such as footnotes
+        # implement a a deque, as we will remove elements from the start as we process them
+        element_list = deque(self.get_children_as_elements())
+
+        # Clear all children from the sentence - we will rebuild in situ
+        self.clear_children()
+
+        # Split the parse string into list items - call this parse_list
+        # This will contain three types of parse instruction
+        # (X followed immediately by another (X - a phrase
+        # (X followed immediately by an X) - a pos type
+        # X) - a word - the number of closing parentheses is significant
+        parse_list = parse.split(' ')
+
+        # Create a stack for the phrase elements - call this phrase_stack
+        # initialise with the sentence element, which is our top-level phrase
+        phrase_stack = [self.e]
+
+        # variable to hold the current pos type
+        pos_type = None
+
+        # Iterate through parse_list
+        for parse_item in range(len(parse_list)):
+
+            # For each item
+            item = parse_list[parse_item]
+            # If it’s a phrase
+            if item.startswith('(') and parse_list[parse_item + 1].startswith('('):
+                # Create a phrase element - mark its type
+                # Add it to the current phrase element
+                new_phrase = ET.SubElement(phrase_stack[-1], 'phr')
+                new_phrase.set_attribute('type', item[1:])
+                # Add it to phrase_stack (NB the most recent item in this stack is the current phrase)
+                phrase_stack.append(new_phrase)
+
+            # If it’s a pos type
+            elif item.startswith('('):
+                # Record it as the current pos type
+                pos_type = item[1:]
+
+            # If it’s a word
+            elif item.endswith(')'):
+                # Get the next word from element_list (we should be at a word, not a non-word)
+                word = element_list.popleft()
+                # Add it to the current phrase element
+                phrase_stack[-1].append(word)
+                # Set the pos type to the current pos type
+                word.set_attribute('pos', pos_type)
+                # Count the parentheses at the end - this will be used later
+                count = item.count(')')
+                # If the next item is a non-word, also add that to the current phrase
+                # Repeat until we are at a word again
+                while element_list[0].get_tag != 'w':
+                    nonword = element_list.popleft()
+                    phrase_stack[-1].append(nonword)
+                # Now count the parentheses - subtract one - pop that many phrases off phrase_stack
+                for x in range(count):
+                    phrase_stack.pop()
+
+        #TODO Optionally add a POS string without parse data
+        #TODO Don’t forget document ID and sentence number
+
