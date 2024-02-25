@@ -129,17 +129,11 @@ class Sentence(CorpusElement):
                 new_phrase.set('type', item[1:])
                 # Add it to phrase_stack (NB the most recent item in this stack is the current phrase)
                 phrase_stack.append(new_phrase)
-                print('item ', item)
-                print('new phrase added to ', phrase_stack[-1].tag)
-                print('\n')
 
             # If it’s a pos type
             elif item.startswith('('):
                 # Record it as the current pos type
                 pos_type = item[1:]
-                print('item ', item)
-                print('pos type set to ', pos_type)
-                print('\n')
 
             # If it’s a word
             elif item.endswith(')'):
@@ -153,18 +147,12 @@ class Sentence(CorpusElement):
                 count = item.count(')') - 1
                 # If the next item is a non-word, also add that to the current phrase
                 # Repeat until we are at a word again
-                print('item ', item)
-                print('word added to ', phrase_stack[-1].tag)
                 while len(element_list) > 0 and element_list[0].tag != 'w':
                     nonword = element_list.popleft()
                     phrase_stack[-1].append(nonword)
-                    print('non-word ', nonword.tag, ' added to ', phrase_stack[-1].tag)
                 # Now count the parentheses - subtract one - pop that many phrases off phrase_stack
                 for x in range(count):
                     phrase_stack.pop()
-                print('popped from phrase stack: ', count)
-                print('phrase stack length: ', len(phrase_stack))
-                print('\n')
 
         #TODO Optionally add a POS string without parse data
         #TODO Don’t forget document ID and sentence number
