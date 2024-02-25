@@ -3,10 +3,15 @@ from src.word import Word
 from collections import deque
 import xml.etree.ElementTree as ET   
 
+# NB need to run the following commands in the terminal before running this code
+# pip3 install benepar
+# python3 -m spacy download en_core_web_md
+
 import benepar, spacy
 
-# gloabl NLP pipe
+# global variables
 nlp = None
+prepared = False
 
 # Sentence class represents a sentence in the text
 
@@ -58,13 +63,20 @@ class Sentence(CorpusElement):
     
     ##############################################################################
     
-    def prepare_parser() -> None:
+    def prepare_parser(self) -> None:
         global nlp
         benepar.download('benepar_en3')
         nlp = spacy.load('en_core_web_md')
         nlp.add_pipe('benepar', config={'model': 'benepar_en3'})
 
     def parse(self, add_parse_string=False, restructure=False) -> None:
+        # first check to see if we have prepared the parser
+        global prepared
+        if not prepared:
+            self.prepare_parser()
+            prepared = True
+
+        # get the text of the sentence    
         text = self.get_words_as_text()
         doc = nlp(text)
         sent = list(doc.sents)[0]
@@ -78,22 +90,14 @@ class Sentence(CorpusElement):
         if restructure:
             self.restructure(parse)
 
-        # items = parse.split(' ')
-        # for i in items:
-        #     if i.startswith('('):
-        #         if i in ['(S', '(CP', '(IP', '(VP', '(NP', '(PP', '(ADJP', '(ADVP', '(CONJP', '(QP', '(DP']:
-        #         print('phrase: ', i)
-        #         else:
-        #         print('pos:    ', i)
-        #     else:
-        #         print('word:   ', i)
-
     def restructure(self, parse) -> None:
 
         # Copy all elements in the sentence to element_list
         # this will include words and other tags such as footnotes
         # implement a a deque, as we will remove elements from the start as we process them
         element_list = deque(self.get_children_as_elements())
+        # remove the first element, which is the sentence element
+        element_list.popleft()
 
         # Clear all children from the sentence - we will rebuild in situ
         self.clear_children()
@@ -125,11 +129,17 @@ class Sentence(CorpusElement):
                 new_phrase.set('type', item[1:])
                 # Add it to phrase_stack (NB the most recent item in this stack is the current phrase)
                 phrase_stack.append(new_phrase)
+                print('item ', item)
+                print('new phrase added to ', phrase_stack[-1].tag)
+                print('\n')
 
             # If it’s a pos type
             elif item.startswith('('):
                 # Record it as the current pos type
                 pos_type = item[1:]
+                print('item ', item)
+                print('pos type set to ', pos_type)
+                print('\n')
 
             # If it’s a word
             elif item.endswith(')'):
@@ -143,12 +153,18 @@ class Sentence(CorpusElement):
                 count = item.count(')') - 1
                 # If the next item is a non-word, also add that to the current phrase
                 # Repeat until we are at a word again
-                while element_list[0].tag != 'w':
+                print('item ', item)
+                print('word added to ', phrase_stack[-1].tag)
+                while len(element_list) > 0 and element_list[0].tag != 'w':
                     nonword = element_list.popleft()
                     phrase_stack[-1].append(nonword)
+                    print('non-word ', nonword.tag, ' added to ', phrase_stack[-1].tag)
                 # Now count the parentheses - subtract one - pop that many phrases off phrase_stack
                 for x in range(count):
                     phrase_stack.pop()
+                print('popped from phrase stack: ', count)
+                print('phrase stack length: ', len(phrase_stack))
+                print('\n')
 
         #TODO Optionally add a POS string without parse data
         #TODO Don’t forget document ID and sentence number

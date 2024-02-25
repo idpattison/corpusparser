@@ -4,8 +4,6 @@ from src.sentence import Sentence
 
 import benepar, spacy
 
-Sentence.prepare_parser()
-
 filename = 'tests/data/input.xml'
 docname = 'Dummy name'
 format = 'colmep'
@@ -29,7 +27,7 @@ s.parse(add_parse_string=True, restructure=True)
 
 # print the first part of the XML to check
 xml = d.to_xml_string(indent=4)
-print(xml[:5000])
+print(xml[:10000])
 # print('Sentences :', d.get_sentence_count())
 # sent_e = d.get_sentences_as_elements()
 # s = Sentence.create_from_element(sent_e[0])
