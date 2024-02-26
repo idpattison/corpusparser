@@ -349,6 +349,10 @@ class CorpusElement():
                 if _period_tokenisation_model(word_elem_list, i):
                     word_elem_list[i].set('sent-break', '1')
 
+            if tokenisation_model == 'period_and_capital':
+                if _period_and_capital_tokenisation_model(word_elem_list, i):
+                    word_elem_list[i].set('sent-break', '1')
+
             # NB no other tokenisation models at present
 
         # the last word will always be a sentence break
@@ -413,7 +417,11 @@ class CorpusElement():
         self.update_spellings_regex(match='/(.*[aeiouy])u([aeiouy].*)i', replace='\\1v\\2')
 
     def transform_ye_caret_to_the(self) -> None:
-        self.update_spellings('/y^e^/i', 'the')
+        self.update_spellings('y^e^', 'the')
+        self.update_spellings('y^e', 'the')
+
+    def transform_lbar_to_l(self) -> None:
+        self.update_spellings('ƚ', 'l')
 
                 
     def update_spellings(self, match: str, replace: str) -> None:
@@ -445,15 +453,29 @@ class CorpusElement():
     def transform_parse(self, add_parse_string=False, restructure=False, id=None) -> None:
         # for each sentence, invoke the parser
         sents = self.get_sentences()
+        i = 0
+        fails = 0
         for s in sents:
-            s.parse(add_parse_string, restructure, id)
+            success = s.parse(add_parse_string, restructure, id)
+            # if counter is divisible by 100, print a message
+            if i % 100 == 0:
+                print('Parsed', i, 'of', len(sents), 'sentences')
+            i += 1
+            # if the parser fails, count it
+            if not success:
+                fails += 1
+        # print a message if there are any failures
+        if fails > 0:
+            print('Parsing failed for', fails, 'sentences which were too long (>512)')
+    
 
     def transform_pos_tag(self, id=None):
         # for each sentence, calcalate the POS tags
-        # NB we must have previously run the parser
+        # NB we must have previously run the parser - check for a 'parse' attribute
         sents = self.get_sentences()
         for s in sents:
-            s.pos_tag(id)
+            if s.has_attribute('parse'):
+                s.pos_tag(id)
 
 
 
@@ -467,11 +489,19 @@ class CorpusElement():
 # Models
 ##############################################################################
 
+# break sentences where there is a period
 def _period_tokenisation_model(word_list, index: int) -> bool:
     if word_list[index].text == '.':
         return True
     return False
 
+# break sentences where there is a period, or a colon or oblique which is followed immediatley by a capital letter
+def _period_and_capital_tokenisation_model(word_list, index: int) -> bool:
+    if word_list[index].text == '.':
+        return True
+    if word_list[index].text in [':', '/'] and word_list[index + 1].text[0].isupper():
+        return True
+    return False
 
 
 ##############################################################################

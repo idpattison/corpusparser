@@ -69,7 +69,7 @@ class Sentence(CorpusElement):
         nlp = spacy.load('en_core_web_md')
         nlp.add_pipe('benepar', config={'model': 'benepar_en3'})
 
-    def parse(self, add_parse_string=False, restructure=False, id=None) -> None:
+    def parse(self, add_parse_string=False, restructure=False, id=None) -> bool:
         # first check to see if we have prepared the parser
         global prepared
         if not prepared:
@@ -78,6 +78,10 @@ class Sentence(CorpusElement):
 
         # get the text of the sentence    
         text = self.get_words_as_text()
+        # maximum sentence length for the parser is 512 characters
+        # if we exceed this return failure
+        if len(text) > 512:
+            return False
         doc = nlp(text)
         sent = list(doc.sents)[0]
         parse = sent._.parse_string
@@ -94,6 +98,9 @@ class Sentence(CorpusElement):
         # restructure the sentence tree if required
         if restructure:
             self.restructure(parse)
+
+        # return success
+        return True
 
     def restructure(self, parse) -> None:
 
@@ -164,10 +171,12 @@ class Sentence(CorpusElement):
 
     def pos_tag(self, id=None):
         # iterate through the words and create a list of pos tags in the form 'word/POS'
+        # NB if we haven't parsed the sentence, we won't have POS types
         words = self.get_words()
         pos_list = []
         for w in words:
-            pos_list.append(w.get_text() + '/' + w.get_attribute('pos'))
+            if w.has_attribute('pos'):
+                pos_list.append(w.get_text() + '/' + w.get_attribute('pos'))
         # if the document has an ID, and the sentence has a number, add these to the parse string
         if id and self.has_attribute('n'):
             pos_list.append(id + ',' + self.get_attribute('n') + '/ID')
