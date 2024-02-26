@@ -48,7 +48,7 @@ class Document(CorpusElement):
         return Document.create_from_element(new_elem)
 
     # create a document from a non-XML, or a non-standard XML file
-    def create_from_nonstandard_file(filename:str, docname: str, format:str):
+    def create_from_nonstandard_file(filename:str, format:str):
 
         if format == 'colmep':
 
@@ -78,7 +78,6 @@ class Document(CorpusElement):
             # clone the document and clear the original - it will be easier to copy across than to keep track of iterators
             d_old = d.clone_document()
             d.clear()
-            d.set_name(docname)
 
             # iterate across the existing document
             for elem in d_old.iter():

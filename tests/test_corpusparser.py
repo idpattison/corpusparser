@@ -13,7 +13,8 @@ class ImportColmepTestCase(unittest.TestCase):
         filename = 'tests/data/input.xml'
         docname = 'Test document'
         format = 'colmep'
-        self.d = Document.create_from_nonstandard_file(filename, docname, format)
+        self.d = Document.create_from_nonstandard_file(filename, format)
+        self.d.set_name(docname)
         # self.d.import_colmep_format(filename, docname)
         return super().setUp()
 
@@ -53,7 +54,8 @@ class UtilityFunctionsTestCase(unittest.TestCase):
         filename = 'tests/data/input.xml'
         docname = 'Test document'
         format = 'colmep'
-        self.d = Document.create_from_nonstandard_file(filename, docname, format)
+        self.d = Document.create_from_nonstandard_file(filename, format)
+        self.d.set_name(docname)
         return super().setUp()
 
     # check that the element counting function works
@@ -82,9 +84,8 @@ class SentencesAndWordsTestCase(unittest.TestCase):
     # import the xml file into a Document and process sentences
     def setUp(self) -> None:
         filename = 'tests/data/input.xml'
-        docname = 'Test document'
         format = 'colmep'
-        self.d = Document.create_from_nonstandard_file(filename, docname, format)
+        self.d = Document.create_from_nonstandard_file(filename, format)
         self.d.transform_tokenise_sentences()
         self.d.transform_add_convenience_text_to_sentences()
         return super().setUp()
@@ -123,9 +124,9 @@ class SentencesAndWordsTestCase(unittest.TestCase):
 
     # check sentence and word lengths
     def test_sentence_lengths(self):
-        words = self.d.get_word_count()
+        words = self.d.count_words()
         self.assertEqual(words, 1772)
-        longest = self.d.get_longest_sentence()
+        longest = self.d.longest_sentence_length()
         self.assertEqual(longest, 124)
 
 
@@ -135,9 +136,8 @@ class SpellingCorrectionTestCase(unittest.TestCase):
     # import the xml file into a Document and process sentences
     def setUp(self) -> None:
         filename = 'tests/data/input.xml'
-        docname = 'Test document'
         format = 'colmep'
-        self.d = Document.create_from_nonstandard_file(filename, docname, format)
+        self.d = Document.create_from_nonstandard_file(filename, format)
         self.d.transform_tokenise_sentences()
         return super().setUp()
     
@@ -154,6 +154,31 @@ class SpellingCorrectionTestCase(unittest.TestCase):
         word = self.d.get_word_element_by_sentence_and_word_index(4, 1)
         self.assertEqual(word.text, 'vpon')
         self.assertEqual(word.get('ortho'), 'vpo*n*')
+
+
+
+class SentenceParseTestCase(unittest.TestCase):    
+
+    # import the xml file into a Document and process sentences
+    def setUp(self) -> None:
+        filename = 'tests/data/input.xml'
+        format = 'colmep'
+        self.d = Document.create_from_nonstandard_file(filename, format)
+        self.d.transform_tokenise_sentences()
+        self.d.transform_parse(add_parse_string=True, restructure=True)
+        return super().setUp()
+    
+    # check that parsing has been applied
+    def test_remove_asterisks(self):
+        # check that the parse string has been added to the sentence
+        sents = self.d.get_sentences()
+        s = sents[0]
+        parse = s.get_attribute('parse')
+        self.assertEqual('(S (: ¶) (NP (NP (DT The)', parse[:25])
+        # check that the sentences have been restructured
+        se = sents[1].get_underlying_element()
+        e = se[0]  # should be a phrase
+        self.assertEqual(e.tag, 'phr')
 
 
 

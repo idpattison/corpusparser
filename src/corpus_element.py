@@ -151,16 +151,16 @@ class CorpusElement():
     ##############################################################################
 
     # get count of specific element types
-    def get_element_count(self, tag: str, recursive=True) -> int:
+    def count_elements(self, tag: str, recursive=True) -> int:
         if recursive:
             return len(list(self.iter(tag)))
         return len(self.findall(tag))
     
     # specific element types
-    def get_sentence_count(self) -> int:
-        return self.get_element_count('s')
-    def get_word_count(self) -> int:
-        return self.get_element_count('w')
+    def count_sentences(self) -> int:
+        return self.count_elements('s')
+    def count_words(self) -> int:
+        return self.count_elements('w')
 
     # get sentence length - longest, shortest, average
     def get_sentence_lengths(self) -> list:
@@ -168,11 +168,11 @@ class CorpusElement():
         for s in self.get_sentences_as_elements():
             sent_lengths.append(len(list(s.iter('w'))))
         return sent_lengths
-    def get_longest_sentence(self) -> int:
+    def longest_sentence_length(self) -> int:
         return max(self.get_sentence_lengths())
-    def get_shortest_sentence(self) -> int:
+    def shortest_sentence_length(self) -> int:
         return min(self.get_sentence_lengths())
-    def get_average_sentence_length(self) -> int:
+    def average_sentence_length(self) -> int:
         lengths = self.get_sentence_lengths()
         return round(sum(lengths) / len(lengths))
     
@@ -265,10 +265,17 @@ class CorpusElement():
     def set_name(self, name) -> None:
         self.e.set('name', name)
     
+    def get_id(self) -> str:
+        return self.e.get('id')
+    def set_id(self, id) -> None:
+        self.e.set('id', id)
+    
     def get_attribute(self, key) -> str:
         return self.e.get(key)
     def set_attribute(self, key, value) -> None:
         self.e.set(key, value)
+    def has_attribute(self, key) -> bool:
+        return key in self.e.attrib
     def delete_attribute(self, key) -> None:
         self.e.attrib.pop(key)
     def clear_attributes(self) -> None:
@@ -414,6 +421,31 @@ class CorpusElement():
             if pattern.match(w.text):
                 w.set('ortho', w.text)
                 w.text = pattern.sub(replace, w.text)
+
+    def transform_number_elements(self, tag: str) -> None:
+        # for each element, add a number attribute
+        for i, e in enumerate(self.iter(tag)):
+            e.set('n', str(i + 1))
+
+    def transform_number_sentences(self) -> None:
+        # for each sentence, add a number attribute
+        self.transform_number_elements('s')
+
+    def transform_parse(self, add_parse_string=False, restructure=False, id=None) -> None:
+        # for each sentence, invoke the parser
+        sents = self.get_sentences()
+        for s in sents:
+            s.parse(add_parse_string, restructure, id)
+
+    def transform_pos_tag(self, id=None):
+        # for each sentence, calcalate the POS tags
+        # NB we must have previously run the parser
+        sents = self.get_sentences()
+        for s in sents:
+            s.pos_tag(id)
+
+
+
 
 # END OF CLASS
 ##############################################################################

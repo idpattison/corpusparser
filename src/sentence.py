@@ -69,7 +69,7 @@ class Sentence(CorpusElement):
         nlp = spacy.load('en_core_web_md')
         nlp.add_pipe('benepar', config={'model': 'benepar_en3'})
 
-    def parse(self, add_parse_string=False, restructure=False) -> None:
+    def parse(self, add_parse_string=False, restructure=False, id=None) -> None:
         # first check to see if we have prepared the parser
         global prepared
         if not prepared:
@@ -83,8 +83,13 @@ class Sentence(CorpusElement):
         parse = sent._.parse_string
 
         # save the parse string to the sentence if required
+        # if the document has an ID, and the sentence has a number, add these to the parse string
         if add_parse_string:
-            self.set_attribute('parse', parse)
+            parse_string = parse
+            if id and self.has_attribute('n'):
+                # insert the ID before the last character of parse_string
+                parse_string = parse_string[:-1] + ' (ID ' + id + ',' + self.get_attribute('n') + '))'
+            self.set_attribute('parse', parse_string)
         
         # restructure the sentence tree if required
         if restructure:
@@ -138,7 +143,10 @@ class Sentence(CorpusElement):
             # If it’s a word
             elif item.endswith(')'):
                 # Get the next word from element_list (we should be at a word, not a non-word)
-                word = element_list.popleft()
+                if len(element_list) > 0:
+                    word = element_list.popleft()
+                else:
+                    continue
                 # Add it to the current phrase element
                 phrase_stack[-1].append(word)
                 # Set the pos type to the current pos type
@@ -153,6 +161,19 @@ class Sentence(CorpusElement):
                 # Now count the parentheses - subtract one - pop that many phrases off phrase_stack
                 for x in range(count):
                     phrase_stack.pop()
+
+    def pos_tag(self, id=None):
+        # iterate through the words and create a list of pos tags in the form 'word/POS'
+        words = self.get_words()
+        pos_list = []
+        for w in words:
+            pos_list.append(w.get_text() + '/' + w.get_attribute('pos'))
+        # if the document has an ID, and the sentence has a number, add these to the parse string
+        if id and self.has_attribute('n'):
+            pos_list.append(id + ',' + self.get_attribute('n') + '/ID')
+        # make the list into a string and store in the sentence
+        self.set_attribute('pos', ' '.join(pos_list))             
+
 
         #TODO Optionally add a POS string without parse data
         #TODO Don’t forget document ID and sentence number

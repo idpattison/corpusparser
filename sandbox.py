@@ -5,9 +5,9 @@ from src.sentence import Sentence
 import benepar, spacy
 
 filename = 'tests/data/input.xml'
-docname = 'Dummy name'
 format = 'colmep'
-d = Document.create_from_nonstandard_file(filename, docname, format)
+d = Document.create_from_nonstandard_file(filename, format)
+d.set_id('AYMON')
 # print(d.tag)
 d.transform_tokenise_sentences()
 # NB make sure to update spellings before adding text to sentences
@@ -16,18 +16,21 @@ d.transform_v_to_u()
 d.transform_u_to_v()
 d.transform_ye_caret_to_the()
 d.transform_add_convenience_text_to_sentences()
+d.transform_number_sentences()
+d.transform_parse(add_parse_string=True, restructure=True, id=d.get_id())
+d.transform_pos_tag(id=d.get_id())
 
 # get sentences
-sents = d.get_sentences()
-s = sents[0]
-s.parse(add_parse_string=True, restructure=True)
+# sents = d.get_sentences()
+# s = sents[0]
+# s.parse(add_parse_string=True, restructure=True)
 # sents = d.get_sentences_as_text_list()
 # for s in sents:
 #     print(s, '\n')
 
 # print the first part of the XML to check
 xml = d.to_xml_string(indent=4)
-print(xml[:10000])
+print(xml[:12000])
 # print('Sentences :', d.get_sentence_count())
 # sent_e = d.get_sentences_as_elements()
 # s = Sentence.create_from_element(sent_e[0])
