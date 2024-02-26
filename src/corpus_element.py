@@ -414,7 +414,7 @@ class CorpusElement():
         self.update_spellings_regex(match='/v([bcdfghjklmnpqrstvwxz].*)/i', replace='u\\1')
 
     def transform_u_to_v(self) -> None:
-        self.update_spellings_regex(match='/(.*[aeiouy])u([aeiouy].*)i', replace='\\1v\\2')
+        self.update_spellings_regex(match='/(.*[aeiouy])u([aeiouy].*)/i', replace='\\1v\\2')
 
     def transform_ye_caret_to_the(self) -> None:
         self.update_spellings('y^e^', 'the')
