@@ -176,9 +176,16 @@ class CorpusElement():
         lengths = self.get_sentence_lengths()
         return round(sum(lengths) / len(lengths))
     
-    # get count of words in a given sentence
-    # def _get_sentence_length(sentence: ET.Element) -> int:
-    #     return len(sentence.iter('w'))
+    # print some basic data about the element
+    def print_info(self) -> None:
+        print('Number of sentences: ', self.count_sentences())
+        print('Number of words: ', self.count_words())
+        print('Longest sentence: ', self.longest_sentence_length())
+        print('Shortest sentence: ', self.shortest_sentence_length())
+        print('Average sentence length: ', self.average_sentence_length())
+        print('Most frequent words: ', self.word_frequency_no_punctuation().most_common(10))
+        print('Most frequent punctuation: ', self.word_frequency_contains_punctuation().most_common(10))
+        print("XML tags: ", self.get_xml_tags())
 
 
     ##############################################################################
@@ -189,7 +196,7 @@ class CorpusElement():
     def word_frequency(self, pattern='') -> dict:
         words = self.get_words_as_text_list()
         if pattern != '':
-            words = [w for w in words if re.match(pattern, w)]
+            words = [w.lower() for w in words if re.match(pattern, w)]
         return collections.Counter(words)
     
     def word_frequency_starts_with(self, letter: str) -> dict:
@@ -202,6 +209,10 @@ class CorpusElement():
     
     def word_frequency_contains_punctuation(self) -> dict:
         pattern = '.*[^A-Za-z0-9].*'
+        return self.word_frequency(pattern)
+    
+    def word_frequency_no_punctuation(self) -> dict:
+        pattern = '.*[A-Za-z0-9].*'
         return self.word_frequency(pattern)
     
     # get list of XML tags used

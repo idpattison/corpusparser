@@ -17,8 +17,9 @@ d.transform_u_to_v()
 d.transform_ye_caret_to_the()
 d.transform_add_convenience_text_to_sentences()
 d.transform_number_sentences()
-d.transform_parse(add_parse_string=True, restructure=True, id=d.get_id())
-d.transform_pos_tag(id=d.get_id())
+# d.transform_parse(add_parse_string=True, restructure=True, id=d.get_id())
+# d.transform_pos_tag(id=d.get_id())
+d.print_info()
 
 # get sentences
 # sents = d.get_sentences()
@@ -29,8 +30,8 @@ d.transform_pos_tag(id=d.get_id())
 #     print(s, '\n')
 
 # print the first part of the XML to check
-xml = d.to_xml_string(indent=4)
-print(xml[:12000])
+# xml = d.to_xml_string(indent=4)
+# print(xml[:12000])
 # print('Sentences :', d.get_sentence_count())
 # sent_e = d.get_sentences_as_elements()
 # s = Sentence.create_from_element(sent_e[0])
@@ -45,7 +46,7 @@ print(xml[:12000])
 # print('Average   :', d.get_average_sentence_length())
 # print(d.word_frequency_starts_with('w'))
 # print(d.word_frequency_contains_punctuation())
-print(d.get_xml_tags())
+# print(d.get_xml_tags())
 
 # sents = d.get_sentences_as_elements()
 # # check this is the right size
