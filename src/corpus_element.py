@@ -411,10 +411,10 @@ class CorpusElement():
         self.update_spellings(match='*', replace='')
 
     def transform_v_to_u(self) -> None:
-        self.update_spellings_regex(match='/v([bcdfghjklmnpqrstvwxz].*)/i', replace='u\\1')
+        self.update_spellings_regex(match='v([bcdfghjklmnpqrstvwxz].*)', replace='u\\1')
 
     def transform_u_to_v(self) -> None:
-        self.update_spellings_regex(match='/(.*[aeiouy])u([aeiouy].*)/i', replace='\\1v\\2')
+        self.update_spellings_regex(match='(.*[aeiouy])u([aeiouy].*)', replace='\\1v\\2')
 
     def transform_ye_caret_to_the(self) -> None:
         self.update_spellings('y^e^', 'the')
@@ -435,11 +435,10 @@ class CorpusElement():
     def update_spellings_regex(self, match: str, replace: str) -> None:
         # for each word, check if it matches the regex pattern
         # if so, make corrections, and add the original orthography to the word as an attribute
-        pattern = re.compile(match)
         for w in self.iter('w'):
-            if pattern.match(w.text):
+            if re.match(match, w.text, flags=re.IGNORECASE):
                 w.set('ortho', w.text)
-                w.text = pattern.sub(replace, w.text)
+                w.text = re.sub(match, replace, w.text)
 
     def transform_number_elements(self, tag: str) -> None:
         # for each element, add a number attribute

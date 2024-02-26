@@ -10,7 +10,6 @@ d.set_id('CAXTON-FSOA')
 
 # split into sentences
 d.transform_tokenise_sentences(tokenisation_model='period_and_capital')
-d.print_info()
 
 # perform transforms - spelling, sentence numbering, etc.
 d.transform_remove_asterisks()
@@ -31,7 +30,7 @@ with open(out_file, 'w') as f:
 
 # get basic info aboout the document
 d.print_info()
-print(d.word_frequency_starts_with('y'))
+print(d.word_frequency_starts_with('u'))
 
 # parse sentences
 d.transform_parse(add_parse_string=True, restructure=True, id=d.get_id())
