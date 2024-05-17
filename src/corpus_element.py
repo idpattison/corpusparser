@@ -395,6 +395,12 @@ class CorpusElement():
                     else:
                         s.append(elem) 
 
+    def transform_add_original_text_to_sentences(self) -> None:
+        self.transform_add_convenience_text_to_sentences(correctedText=False)
+
+    def transform_add_corrected_text_to_sentences(self) -> None:
+        self.transform_add_convenience_text_to_sentences(correctedText=True)
+
     def transform_add_convenience_text_to_sentences(self, correctedText=False) -> None:
         # iterate through the sentences, for each one
         # concatenate the words and add to a text attribute in the sentence
@@ -437,18 +443,26 @@ class CorpusElement():
     def update_spellings(self, match: str, replace: str) -> None:
         # for each word, check if it matches the match pattern
         # if so, make corrections and add the updated orthography to the word as an attribute
+        # if we have already made a change, use the value in the ortho attribute
         for w in self.iter('w'):
-            if match in w.text:
-                w.set('ortho', w.text.replace(match, replace))
-                # w.text = w.text.replace(match, replace)
+            if 'ortho' in w.attrib:
+                if match in w.attrib['ortho']:
+                    w.set('ortho', w.attrib['ortho'].replace(match, replace))
+            else:
+                if match in w.text:
+                    w.set('ortho', w.text.replace(match, replace))
 
     def update_spellings_regex(self, match: str, replace: str) -> None:
         # for each word, check if it matches the regex pattern
         # if so, make corrections and add the updated orthography to the word as an attribute
+        # if we have already made a change, use the value in the ortho attribute
         for w in self.iter('w'):
-            if re.match(match, w.text, flags=re.IGNORECASE):
-                w.set('ortho', re.sub(match, replace, w.text))
-                # w.text = re.sub(match, replace, w.text)
+            if 'ortho' in w.attrib:
+                if re.match(match, w.attrib['ortho'], flags=re.IGNORECASE):
+                    w.set('ortho', re.sub(match, replace, w.attrib['ortho']))
+            else:
+                if re.match(match, w.text, flags=re.IGNORECASE):
+                    w.set('ortho', re.sub(match, replace, w.text))
 
     def transform_number_elements(self, tag: str) -> None:
         # for each element, add a number attribute

@@ -17,7 +17,7 @@ d.transform_v_to_u()
 d.transform_u_to_v()
 d.transform_ye_caret_to_the()
 d.transform_lbar_to_l()
-d.transform_add_convenience_text_to_sentences()
+d.transform_add_original_text_to_sentences()
 d.transform_number_sentences()
 
 # get corrected sentences
