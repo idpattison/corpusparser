@@ -111,7 +111,7 @@ class SentencesAndWordsTestCase(unittest.TestCase):
         s = sents[2]
         self.assertIsInstance(s, Sentence)
         # check a given sentence
-        t = s.get_attribute('conv-text')
+        t = s.get_attribute('orig-text')
         self.assertEqual('As the philosopher', t[:18])
         
     # check that we can retrieve a given sentence and word
@@ -144,16 +144,16 @@ class SpellingCorrectionTestCase(unittest.TestCase):
     # check that spelling updates are applied correctly
     def test_remove_asterisks(self):
         self.d.transform_remove_asterisks()
-        # check the words have been correctly updated and the old orthography stored
+        # check the words have been correctly identified and the updated orthography stored
         # word 15 in sentence 3 is *that*
         word = self.d.get_word_element_by_sentence_and_word_index(2, 14)
-        self.assertEqual(word.text, 'that')
-        self.assertEqual(word.get('ortho'), '*that*')
+        self.assertEqual(word.text, '*that*')
+        self.assertEqual(word.get('ortho'), 'that')
         # check another word
         # word 2 in sentence 5 is vpo*n*
         word = self.d.get_word_element_by_sentence_and_word_index(4, 1)
-        self.assertEqual(word.text, 'vpon')
-        self.assertEqual(word.get('ortho'), 'vpo*n*')
+        self.assertEqual(word.text, 'vpo*n*')
+        self.assertEqual(word.get('ortho'), 'vpon')
 
 
 

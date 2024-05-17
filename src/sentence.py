@@ -58,8 +58,8 @@ class Sentence(CorpusElement):
             word_list.append(Word.create_from_element(w))
         return word_list
 
-    def get_words_as_text(self) -> str:
-        return self.get_children_as_text('w')
+    def get_words_as_text(self, correctedText=False) -> str:
+        return self.get_children_as_text('w', correctedText)
     
     ##############################################################################
     
@@ -69,7 +69,7 @@ class Sentence(CorpusElement):
         nlp = spacy.load('en_core_web_md')
         nlp.add_pipe('benepar', config={'model': 'benepar_en3'})
 
-    def parse(self, add_parse_string=False, restructure=False, id=None) -> bool:
+    def parse(self, correctedText=False, add_parse_string=False, restructure=False, id=None) -> bool:
         # first check to see if we have prepared the parser
         global prepared
         if not prepared:
@@ -77,7 +77,7 @@ class Sentence(CorpusElement):
             prepared = True
 
         # get the text of the sentence    
-        text = self.get_words_as_text()
+        text = self.get_words_as_text(correctedText)
         # maximum sentence length for the parser is 512 characters
         # if we exceed this return failure
         if len(text) > 512:

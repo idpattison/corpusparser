@@ -88,15 +88,18 @@ class CorpusElement():
     ##############################################################################
 
     # return the text of all sub-elements of a given type contained in this element as a list of strings
-    def get_children_as_text_list(self, tag=None) -> list:
+    def get_children_as_text_list(self, tag=None, correctedText=False) -> list:
         children = []
         for c in self.e.iter(tag):
             if c.text != None:
-                children.append(c.text)
+                if correctedText and 'ortho' in c.attrib:
+                    children.append(c.attrib['ortho'])
+                else:
+                    children.append(c.text)
         return children
     
-    def get_children_as_text(self, tag=None, separator=' ') -> str:
-        return separator.join(self.get_children_as_text_list(tag))
+    def get_children_as_text(self, tag=None, correctedText=False, separator=' ') -> str:
+        return separator.join(self.get_children_as_text_list(tag, correctedText))
 
     # return all sub-elements of a given type contained in this element as a list
     def get_children_as_elements(self, tag=None) -> list:
@@ -106,21 +109,21 @@ class CorpusElement():
         return children
 
     # return all sentences as a list of strings or elements
-    def get_sentences_as_text_list(self) -> list:
+    def get_sentences_as_text_list(self, correctedText=False) -> list:
         sent_list = []
         sents = self.get_sentences_as_elements()
         for s in sents:
             ce = CorpusElement.create_from_element(s)
-            sent_list.append(ce.get_children_as_text('w'))
+            sent_list.append(ce.get_children_as_text('w', correctedText))
         return sent_list
     def get_sentences_as_elements(self) -> list:
         return self.get_children_as_elements('s')
 
     # return all word as a list of strings or elements
-    def get_words_as_text_list(self) -> list:
-        return self.get_children_as_text_list('w')
-    def get_words_as_text(self) -> str:
-        return self.get_children_as_text('w')
+    def get_words_as_text_list(self, correctedText=False) -> list:
+        return self.get_children_as_text_list('w', correctedText)
+    def get_words_as_text(self, correctedText=False) -> str:
+        return self.get_children_as_text('w', correctedText)
     def get_words_as_elements(self) -> list:
         return self.get_children_as_elements('w')
 
@@ -193,8 +196,8 @@ class CorpusElement():
     ##############################################################################
 
     # return a dictonary with the frequency of each word in the element
-    def word_frequency(self, pattern='') -> dict:
-        words = self.get_words_as_text_list()
+    def word_frequency(self, pattern='', correctedText=False) -> dict:
+        words = self.get_words_as_text_list(correctedText)
         if pattern != '':
             words = [w.lower() for w in words if re.match(pattern, w)]
         return collections.Counter(words)
@@ -224,12 +227,12 @@ class CorpusElement():
         return tag_list
     
     # concordance output
-    def concordance(self, keyword: str, separator='\t', context_length=25) -> list:
-        return self.concordance_in([keyword], separator, context_length)
+    def concordance(self, keyword: str, correctedText=False, separator='\t', context_length=25) -> list:
+        return self.concordance_in([keyword], correctedText, separator, context_length)
     
-    def concordance_in(self, keywords: list, separator='\t', context_length=25) -> list:
+    def concordance_in(self, keywords: list, correctedText=False, separator='\t', context_length=25) -> list:
         results = []
-        words = self.get_words_as_text_list()
+        words = self.get_words_as_text_list(correctedText)
         for i in range(len(words)):
             if words[i].lower() in keywords:
                 left_start = max(0, i - context_length)
@@ -392,20 +395,27 @@ class CorpusElement():
                     else:
                         s.append(elem) 
 
-    def transform_add_convenience_text_to_sentences(self) -> None:
+    def transform_add_convenience_text_to_sentences(self, correctedText=False) -> None:
         # iterate through the sentences, for each one
         # concatenate the words and add to a text attribute in the sentence
         #TODO - this should use get_children_as_text()
         # however that would entail creating a Sentence object for each iteration
-        # leave for now
+        # leave for now - it creates a circular import reference
+
         for sentence in self.e.iter('s'):
             words = []
             for w in sentence.iter('w'):
                 if w.text != None:
-                    words.append(w.text)
+                    if correctedText and 'ortho' in w.attrib:
+                        words.append(w.attrib['ortho'])
+                    else:
+                        words.append(w.text)
             if len(words) > 0:
                 text = ' '.join(words)
-                sentence.set('conv-text', text)
+                if correctedText:
+                    sentence.set('corr-text', text)
+                else:
+                    sentence.set('orig-text', text)
 
     def transform_remove_asterisks(self) -> None:
         self.update_spellings(match='*', replace='')
@@ -426,19 +436,19 @@ class CorpusElement():
                 
     def update_spellings(self, match: str, replace: str) -> None:
         # for each word, check if it matches the match pattern
-        # if so, make corrections, and add the original orthography to the word as an attribute
+        # if so, make corrections and add the updated orthography to the word as an attribute
         for w in self.iter('w'):
             if match in w.text:
-                w.set('ortho', w.text)
-                w.text = w.text.replace(match, replace)
+                w.set('ortho', w.text.replace(match, replace))
+                # w.text = w.text.replace(match, replace)
 
     def update_spellings_regex(self, match: str, replace: str) -> None:
         # for each word, check if it matches the regex pattern
-        # if so, make corrections, and add the original orthography to the word as an attribute
+        # if so, make corrections and add the updated orthography to the word as an attribute
         for w in self.iter('w'):
             if re.match(match, w.text, flags=re.IGNORECASE):
-                w.set('ortho', w.text)
-                w.text = re.sub(match, replace, w.text)
+                w.set('ortho', re.sub(match, replace, w.text))
+                # w.text = re.sub(match, replace, w.text)
 
     def transform_number_elements(self, tag: str) -> None:
         # for each element, add a number attribute
@@ -449,13 +459,13 @@ class CorpusElement():
         # for each sentence, add a number attribute
         self.transform_number_elements('s')
 
-    def transform_parse(self, add_parse_string=False, restructure=False, id=None) -> None:
+    def transform_parse(self, correctedText=False, add_parse_string=False, restructure=False, id=None) -> None:
         # for each sentence, invoke the parser
         sents = self.get_sentences()
         i = 0
         fails = 0
         for s in sents:
-            success = s.parse(add_parse_string, restructure, id)
+            success = s.parse(correctedText, add_parse_string, restructure, id)
             # if counter is divisible by 100, print a message
             if i % 100 == 0:
                 print('Parsed', i, 'of', len(sents), 'sentences')
