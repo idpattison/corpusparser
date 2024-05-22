@@ -1,6 +1,6 @@
-from src.corpus_element import CorpusElement
-from src.sentence import Sentence
-from src.word import Word
+from corpusparser.corpus_element import CorpusElement
+from corpusparser.sentence import Sentence
+from corpusparser.word import Word
 import xml.etree.ElementTree as ET   
 import re
 

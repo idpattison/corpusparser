@@ -1,5 +1,5 @@
-from src.corpus_element import CorpusElement
-from src.word import Word
+from corpusparser.corpus_element import CorpusElement
+from corpusparser.word import Word
 from collections import deque
 import xml.etree.ElementTree as ET   
 

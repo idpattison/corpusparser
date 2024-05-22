@@ -1,4 +1,4 @@
-from src.corpus_element import CorpusElement
+from corpusparser.corpus_element import CorpusElement
 import xml.etree.ElementTree as ET   
 
 # Word class represents a word in the text

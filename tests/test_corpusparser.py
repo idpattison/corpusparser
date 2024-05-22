@@ -1,8 +1,6 @@
-import unittest
+from context import CorpusElement, Document, Sentence, Word
 
-from src.document import Document
-from src.sentence import Sentence
-from src.word import Word
+import unittest
 
 import xml.etree.ElementTree as ET
 

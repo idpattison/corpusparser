@@ -1,4 +1,4 @@
-from src.document import Document
+from corpusparser.document import Document
 
 filename = 'tests/data/Aymon.xml'
 format = 'colmep'
