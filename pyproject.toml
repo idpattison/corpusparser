@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "corpus-parser"
+name = "corpusparser"
 version = "0.0.1"
 authors = [
   { name="Ian Pattison", email="ianpattison2@gmail.com" },
@@ -16,7 +16,11 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+  "benepar",
+  "spacy",
+]
 
 [project.urls]
-Homepage = "https://github.com/idpattison/corpus-parser"
-Issues = "https://github.com/idpattison/corpus-parser/issues"
+Homepage = "https://github.com/idpattison/corpusparser"
+Issues = "https://github.com/idpattison/corpusparser/issues"
