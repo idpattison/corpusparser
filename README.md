@@ -73,6 +73,34 @@ doc.set_name("My Text Document")
 doc.set_id("MYTEXT")
 ```
 
+### Saving a file
+
+As you apply corrections, edits and transforms to a document, you can save copies of your work to file, so that you can pick up again later, or try other transforms and revert to a saved version if it goes wrong.
+
+```python
+filename = "current_work_v2.xml"
+doc.to_xml_file(filename, indent=2)
+```
+
+The indent applies to the XML and makes it more human readable.
+
+### Exporting in other formats
+
+Sometimes you will need to export data in different formats, for example Sketch Engine will accept plain text sentences with no XML. YOu can query the document using the various functions and write these to file.
+
+To export a document's sentences in plain text, retrieve the sentences as a `List` and write them to file.
+
+```python
+sents = d.get_sentences_as_text_list()
+filename = "sentences.txt"
+try:
+    with open(filename, 'w') as f:
+        for s in sents:
+            f.write(s)
+except IOError:
+    print("IOError: Could not write to file " + filename)
+```
+
 ## Querying a document
 
 You can ask for all sorts of information about a document, such as the number of words or sentences, or the frequency of certian words. You can also get a simple concordance output.
@@ -302,4 +330,45 @@ Part-of-speech tagging can only be done after parsing. This will add a `pos` att
 
 ```python
 doc.transform_pos_tag()
+```
+
+## Worked example
+
+This code will:
+* import a document in CoLMEP format, setting a name and ID
+* tokenise into sentences based on periods
+* add sentence numbering
+* run a number of spelling transforms
+* get sentences as text and print them
+* save as a new file
+
+```python
+import corpusparser
+
+input_filename = "input.xml"
+format = "colmep"
+
+doc = corpusparser.Document.create_from_nonstandard_file(input_filename, format)
+doc.set_name("My Historical Text")
+doc.set_id("MYTEXT")
+
+doc.transform_tokenise_sentences()
+doc.transform_number_sentences()
+
+doc.transform_remove_asterisks()
+doc.transform_v_to_u()
+doc.transform_u_to_v()
+doc.transform_ye_caret_to_the()
+
+sents = doc.get_sentences_as_text_list()
+sents_filename = "sentences.txt"
+try:
+    with open(sents_filename, 'w') as f:
+        for s in sents:
+            f.write(s)
+except IOError:
+    print("IOError: Could not write to file " + sents_filename)
+
+save_filename = "saved_work.xml"
+doc.to_xml_file(save_filename, indent=2)
 ```
