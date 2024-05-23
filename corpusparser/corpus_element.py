@@ -202,21 +202,21 @@ class CorpusElement():
             words = [w.lower() for w in words if re.match(pattern, w)]
         return collections.Counter(words)
     
-    def word_frequency_starts_with(self, letter: str) -> dict:
+    def word_frequency_starts_with(self, letter: str, correctedText=False) -> dict:
         pattern = '[' + str.upper(letter) + str.lower(letter) + '].*'
-        return self.word_frequency(pattern)
+        return self.word_frequency(pattern, correctedText)
     
-    def word_frequency_contains(self, text: str) -> dict:
+    def word_frequency_contains(self, text: str, correctedText=False) -> dict:
         pattern = '.*' + text + '.*'
-        return self.word_frequency(pattern)
+        return self.word_frequency(pattern, correctedText)
     
-    def word_frequency_contains_punctuation(self) -> dict:
+    def word_frequency_contains_punctuation(self, correctedText=False) -> dict:
         pattern = '.*[^A-Za-z0-9].*'
-        return self.word_frequency(pattern)
+        return self.word_frequency(pattern, correctedText)
     
-    def word_frequency_no_punctuation(self) -> dict:
+    def word_frequency_no_punctuation(self, correctedText=False) -> dict:
         pattern = '.*[A-Za-z0-9].*'
-        return self.word_frequency(pattern)
+        return self.word_frequency(pattern, correctedText)
     
     # get list of XML tags used
     def get_xml_tags(self) -> list:
