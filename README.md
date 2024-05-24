@@ -367,7 +367,7 @@ doc.transform_number_sentences()
 doc.transform_remove_asterisks()
 doc.transform_v_to_u()
 doc.transform_u_to_v()
-doc.transform_ye_caret_to_the()
+doc.transform_carets()
 
 sents = doc.get_sentences_as_text_list()
 sents_filename = "sentences.txt"
