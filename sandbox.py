@@ -1,11 +1,11 @@
 import xml.etree.ElementTree as ET
-from corpusparser.document import Document
-from corpusparser.sentence import Sentence
+import corpusparser
 
-filename = 'tests/data/input.xml'
+filename = 'tests/data/Arthur.xml'
 format = 'colmep'
-d = Document.create_from_nonstandard_file(filename, format)
-d.set_id('AYMON')
+d = corpusparser.Document.create_from_nonstandard_file(filename, format)
+d.set_id('ARTHUR')
+d.print_info()
 # print(d.tag)
 d.transform_tokenise_sentences()
 # NB make sure to update spellings before adding text to sentences
@@ -17,7 +17,6 @@ d.transform_add_convenience_text_to_sentences()
 d.transform_number_sentences()
 # d.transform_parse(add_parse_string=True, restructure=True, id=d.get_id())
 # d.transform_pos_tag(id=d.get_id())
-d.print_info()
 
 # get sentences
 # sents = d.get_sentences()

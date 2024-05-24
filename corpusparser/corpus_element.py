@@ -172,10 +172,16 @@ class CorpusElement():
             sent_lengths.append(len(list(s.iter('w'))))
         return sent_lengths
     def longest_sentence_length(self) -> int:
+        if self.count_sentences() == 0:
+            return 0
         return max(self.get_sentence_lengths())
     def shortest_sentence_length(self) -> int:
+        if self.count_sentences() == 0:
+            return 0
         return min(self.get_sentence_lengths())
     def average_sentence_length(self) -> int:
+        if self.count_sentences() == 0:
+            return 0
         lengths = self.get_sentence_lengths()
         return round(sum(lengths) / len(lengths))
     

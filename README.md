@@ -230,7 +230,7 @@ word.delete_attribute("attr-name")
 
 As well as surgically editing specific parts of the document structure, you can apply *transformations* to the entire document. This can include updating the spelling, adding sentence numbers and adding part-of-speech tags
 
-### Sentence tokenisation
+### Sentence tokenisation
 
 A characteristic of historical texts is that sentence punctuation is inconsistent. In some documents a sentence may continue for several pages, with pauses marked by obliques. In other documents, sentence punctuation may be absent altogether.
 

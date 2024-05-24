@@ -162,3 +162,5 @@ cython_debug/
 # local files
 Aymon*.txt
 Aymon*.xml
+Arthur*.txt
+Arthur*.xml
