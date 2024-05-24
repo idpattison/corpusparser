@@ -96,7 +96,7 @@ filename = "sentences.txt"
 try:
     with open(filename, 'w') as f:
         for s in sents:
-            f.write(s)
+            f.write(f"{s}\n")
 except IOError:
     print("IOError: Could not write to file " + filename)
 ```
@@ -186,7 +186,7 @@ filename = "which.tsv"
 try:
     with open(filename, 'w') as f:
         for c in conc:
-            f.write(c)
+            f.write(f"{c}\n")
 except IOError:
     print("IOError: Could not write to file " + filename)
 ```
@@ -234,14 +234,16 @@ As well as surgically editing specific parts of the document structure, you can 
 
 A characteristic of historical texts is that sentence punctuation is inconsistent. In some documents a sentence may continue for several pages, with pauses marked by obliques. In other documents, sentence punctuation may be absent altogether.
 
-Three different tokenisation models are provided:
+Four different tokenisation models are provided:
 
 * tokenise based on periods only
+* tokenise based on a period, colon or oblique (pause)
 * tokenise based on periods, or a colon or oblique followed by a capital letter
 * *tokenise based on a classification model (under construction)*
 
 ```python
 doc.transform_tokenise_sentences(tokenisation_model="period")
+doc.transform_tokenise_sentences(tokenisation_model="period_and_pause")
 doc.transform_tokenise_sentences(tokenisation_model="period_and_capital")
 ```
 
@@ -265,10 +267,17 @@ A number of popular spelling corrections are provided out-of-the-box:
 
 ```python
 doc.transform_remove_asterisks()
-doc.transform_ye_caret_to_the()
+doc.transform_carets()
 doc.transform_v_to_u()
 doc.transform_u_to_v()
 doc.transform_lbar_to_l()
+doc.transform_nasal_bars()
+```
+
+These six can be called with one single function:
+
+```python
+doc.transform_common_spellings()
 ```
 
 Other spelling correction transformations can be built using the following functions, and supplying a pattern to be matched, and a replacement pattern:
@@ -365,7 +374,7 @@ sents_filename = "sentences.txt"
 try:
     with open(sents_filename, 'w') as f:
         for s in sents:
-            f.write(s)
+            f.write(f"{s}\n")
 except IOError:
     print("IOError: Could not write to file " + sents_filename)
 

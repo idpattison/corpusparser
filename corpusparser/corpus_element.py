@@ -358,6 +358,10 @@ class CorpusElement():
                 if _period_tokenisation_model(word_elem_list, i):
                     word_elem_list[i].set('sent-break', '1')
 
+            if tokenisation_model == 'period_and_pause':
+                if _period_and_pause_tokenisation_model(word_elem_list, i):
+                    word_elem_list[i].set('sent-break', '1')
+
             if tokenisation_model == 'period_and_capital':
                 if _period_and_capital_tokenisation_model(word_elem_list, i):
                     word_elem_list[i].set('sent-break', '1')
@@ -438,12 +442,34 @@ class CorpusElement():
     def transform_u_to_v(self) -> None:
         self.update_spellings_regex(match='(.*[aeiouy])u([aeiouy].*)', replace='\\1v\\2')
 
-    def transform_ye_caret_to_the(self) -> None:
+    def transform_carets(self) -> None:
+        # several spellings where a digraph is represented with carets
         self.update_spellings('y^e^', 'the')
         self.update_spellings('y^e', 'the')
+        self.update_spellings('y^t^', 'that')
+        self.update_spellings('w^t^', 'with')
 
     def transform_lbar_to_l(self) -> None:
         self.update_spellings('ƚ', 'l')
+
+    def transform_nasal_bars(self) -> None:
+        # several spellings where a nasalised vowel is represented with a bar
+        # most often this represents letter n, but it can also be m
+        # a separate spelling update can be applied before this, if this is the case
+        self.update_spellings('ā', 'an')
+        self.update_spellings('ē', 'en')
+        self.update_spellings('ī', 'in')
+        self.update_spellings('ō', 'on')
+        self.update_spellings('ū', 'un')
+
+    def transform_common_spellings(self) -> None:
+        # helper function which bundles common spelling updates together
+        self.transform_remove_asterisks()
+        self.transform_v_to_u()
+        self.transform_u_to_v()
+        self.transform_carets()
+        self.transform_lbar_to_l()
+        self.transform_nasal_bars()
 
                 
     def update_spellings(self, match: str, replace: str) -> None:
@@ -524,9 +550,17 @@ def _period_tokenisation_model(word_list, index: int) -> bool:
         return True
     return False
 
+# break sentences where there is a period, or a colon or oblique
+def _period_and_pause_tokenisation_model(word_list, index: int) -> bool:
+    if word_list[index].text in ['.', ':', '/']:
+        return True
+    return False
+
 # break sentences where there is a period, or a colon or oblique which is followed immediatley by a capital letter
 def _period_and_capital_tokenisation_model(word_list, index: int) -> bool:
     if word_list[index].text == '.':
+        return True
+    if index == len(word_list) - 1:
         return True
     if word_list[index].text in [':', '/'] and word_list[index + 1].text[0].isupper():
         return True
