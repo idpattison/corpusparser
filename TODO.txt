@@ -1,5 +1,5 @@
-change 'ortho' tag to 'so' = standardised orthography
-parsing - replace <phr> tag with (e.g.) <vp>, <np>, <cp>
-spelling - allow spelling rules to be defined an a file, then reference that file in the function parameters
+✅︎ change 'ortho' tag to 'so' = standardised orthography
+✅︎ parsing - replace <phr> tag with (e.g.) <vp>, <np>, <cp>
+spelling - allow spelling rules to be defined in a file, then reference that file in the function parameters
 lemmatisation - maybe using a file of common spelling variants and morphology
-move all tags such as <newpage>, <newfolio> at doc head into the first sentence, so the only children of <document> are <s> tags
+✅︎ move all tags such as <newpage>, <newfolio> at doc head into the first sentence, so the only children of <document> are <s> tags

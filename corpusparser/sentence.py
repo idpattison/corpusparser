@@ -135,10 +135,14 @@ class Sentence(CorpusElement):
             item = parse_list[parse_item]
             # If it’s a phrase
             if item.startswith('(') and parse_list[parse_item + 1].startswith('('):
-                # Create a phrase element - mark its type
+                # Create a phrase element - mark its type as cp, vp, np etc
                 # Add it to the current phrase element
-                new_phrase = ET.SubElement(phrase_stack[-1], 'phr')
-                new_phrase.set('type', item[1:])
+                # NB if the phrase type is S then rename it to <sent> so we don't confuse with our sentence element
+                phrase_type = item[1:].lower()
+                if phrase_type == 's':
+                    phrase_type = 'sent'
+                new_phrase = ET.SubElement(phrase_stack[-1], phrase_type)
+                # new_phrase.set('type', item[1:])
                 # Add it to phrase_stack (NB the most recent item in this stack is the current phrase)
                 phrase_stack.append(new_phrase)
 

@@ -157,12 +157,12 @@ class SpellingCorrectionTestCase(unittest.TestCase):
         # word 15 in sentence 3 is *that*
         word = self.d.get_word_element_by_sentence_and_word_index(2, 14)
         self.assertEqual(word.text, '*that*')
-        self.assertEqual(word.get('ortho'), 'that')
+        self.assertEqual(word.get('so'), 'that')
         # check another word
         # word 2 in sentence 5 is vpo*n*
         word = self.d.get_word_element_by_sentence_and_word_index(4, 1)
         self.assertEqual(word.text, 'vpo*n*')
-        self.assertEqual(word.get('ortho'), 'vpon')
+        self.assertEqual(word.get('so'), 'vpon')
 
 
 

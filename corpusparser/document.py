@@ -299,5 +299,5 @@ class Document(CorpusElement):
 #     pattern = re.compile(match)
 #     for w in d.iter('w'):
 #         if pattern.match(w.text):
-#             w.set('ortho', w.text)
+#             w.set('so', w.text)
 #             w.text = pattern.sub(replace, w.text)

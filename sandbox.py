@@ -1,12 +1,12 @@
 import xml.etree.ElementTree as ET
 import corpusparser
 
-textname = 'Arthur'
+textname = 'input'
 
 filename = 'tests/data/' + textname + '.xml'
 format = 'colmep'
 d = corpusparser.Document.create_from_nonstandard_file(filename, format)
-d.set_id('ARTHUR')
+d.set_id('INPUT')
 
 print('Number of words: ', d.count_words())
 print('Most frequent words: ', d.word_frequency_no_punctuation().most_common(30))
@@ -29,18 +29,20 @@ print('Most frequent words: ', d.word_frequency_no_punctuation(correctedText=Tru
 print('Most frequent punctuation: ', d.word_frequency_contains_punctuation(correctedText=True).most_common(30))
 print("XML tags: ", d.get_xml_tags())
 
+print('Non-standard characters', d.get_nonstandard_characters())
 
-out_file = 'tests/data/' + textname + '-output.xml'
-d.to_xml_file(out_file, indent=2)
 
-sents = d.get_sentences_as_text_list(correctedText=False)
-sents_filename = "tests/data/" + textname + "-sentences-orig.txt"
-try:
-    with open(sents_filename, 'w') as f:
-        for s in sents:
-            f.write(f"{s}\n")
-except IOError:
-    print("IOError: Could not write to file " + sents_filename)
+# out_file = 'tests/data/' + textname + '-output.xml'
+# d.to_xml_file(out_file, indent=2)
+
+# sents = d.get_sentences_as_text_list(correctedText=False)
+# sents_filename = "tests/data/" + textname + "-sentences-orig.txt"
+# try:
+#     with open(sents_filename, 'w') as f:
+#         for s in sents:
+#             f.write(f"{s}\n")
+# except IOError:
+#     print("IOError: Could not write to file " + sents_filename)
 
 
 # # NB make sure to update spellings before adding text to sentences

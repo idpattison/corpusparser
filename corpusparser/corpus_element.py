@@ -92,8 +92,8 @@ class CorpusElement():
         children = []
         for c in self.e.iter(tag):
             if c.text != None:
-                if correctedText and 'ortho' in c.attrib:
-                    children.append(c.attrib['ortho'])
+                if correctedText and 'so' in c.attrib:
+                    children.append(c.attrib['so'])
                 else:
                     children.append(c.text)
         return children
@@ -137,6 +137,11 @@ class CorpusElement():
         if recursive:
             return list(self.iter(tag))[index]
         return self.findall(tag)[index]
+    
+    # character-specific functions
+    def get_nonstandard_characters(self) -> set:
+        ns_chars = set(self.get_words_as_text()) - set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+        return ''.join(sorted(ns_chars))
     
     # word- and sentence-specific functions
     def get_word_element_by_index(self, index: int) -> ET.Element:
@@ -192,9 +197,11 @@ class CorpusElement():
         print('Longest sentence: ', self.longest_sentence_length())
         print('Shortest sentence: ', self.shortest_sentence_length())
         print('Average sentence length: ', self.average_sentence_length())
-        print('Most frequent words: ', self.word_frequency_no_punctuation().most_common(10))
-        print('Most frequent punctuation: ', self.word_frequency_contains_punctuation().most_common(10))
+        print('Most frequent words: ', self.word_frequency_no_punctuation(correctedText=True).most_common(20))
+        print('Most frequent punctuation: ', self.word_frequency_contains_punctuation(correctedText=True).most_common(10))
+        print('Non-standard characters', self.get_nonstandard_characters())
         print("XML tags: ", self.get_xml_tags())
+
 
 
     ##############################################################################
@@ -415,8 +422,8 @@ class CorpusElement():
             words = []
             for w in sentence.iter('w'):
                 if w.text != None:
-                    if correctedText and 'ortho' in w.attrib:
-                        words.append(w.attrib['ortho'])
+                    if correctedText and 'so' in w.attrib:
+                        words.append(w.attrib['so'])
                     else:
                         words.append(w.text)
             if len(words) > 0:
@@ -470,24 +477,24 @@ class CorpusElement():
         # if so, make corrections and add the updated orthography to the word as an attribute
         # if we have already made a change, use the value in the ortho attribute
         for w in self.iter('w'):
-            if 'ortho' in w.attrib:
-                if match in w.attrib['ortho']:
-                    w.set('ortho', w.attrib['ortho'].replace(match, replace))
+            if 'so' in w.attrib:
+                if match in w.attrib['so']:
+                    w.set('so', w.attrib['so'].replace(match, replace))
             else:
                 if match in w.text:
-                    w.set('ortho', w.text.replace(match, replace))
+                    w.set('so', w.text.replace(match, replace))
 
     def update_spellings_regex(self, match: str, replace: str) -> None:
         # for each word, check if it matches the regex pattern
         # if so, make corrections and add the updated orthography to the word as an attribute
         # if we have already made a change, use the value in the ortho attribute
         for w in self.iter('w'):
-            if 'ortho' in w.attrib:
-                if re.match(match, w.attrib['ortho'], flags=re.IGNORECASE):
-                    w.set('ortho', re.sub(match, replace, w.attrib['ortho']))
+            if 'so' in w.attrib:
+                if re.match(match, w.attrib['so'], flags=re.IGNORECASE):
+                    w.set('so', re.sub(match, replace, w.attrib['so']))
             else:
                 if re.match(match, w.text, flags=re.IGNORECASE):
-                    w.set('ortho', re.sub(match, replace, w.text))
+                    w.set('so', re.sub(match, replace, w.text))
 
     def transform_number_elements(self, tag: str) -> None:
         # for each element, add a number attribute
