@@ -1,7 +1,9 @@
 import xml.etree.ElementTree as ET
 import corpusparser
 
-filename = 'tests/data/Melusine.xml'
+textname = 'Arthur'
+
+filename = 'tests/data/' + textname + '.xml'
 format = 'colmep'
 d = corpusparser.Document.create_from_nonstandard_file(filename, format)
 d.set_id('ARTHUR')
@@ -28,11 +30,11 @@ print('Most frequent punctuation: ', d.word_frequency_contains_punctuation(corre
 print("XML tags: ", d.get_xml_tags())
 
 
-out_file = 'tests/data/Melusine-output.xml'
+out_file = 'tests/data/' + textname + '-output.xml'
 d.to_xml_file(out_file, indent=2)
 
-sents = d.get_sentences_as_text_list(correctedText=True)
-sents_filename = "tests/data/Melusine-sentences.txt"
+sents = d.get_sentences_as_text_list(correctedText=False)
+sents_filename = "tests/data/" + textname + "-sentences-orig.txt"
 try:
     with open(sents_filename, 'w') as f:
         for s in sents:
