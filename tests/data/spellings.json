@@ -1,0 +1,66 @@
+{    
+    "spellings": [
+        {
+            "match": "*",
+            "replace": "",
+            "comment": "Remove all asterisks, e.g. *that* > that"
+        },
+        {
+            "regex": true,
+            "match": "v([bcdfghjklmnpqrstvwxz].*)",
+            "replace": "u\\1",
+            "comment": "Transform v to u, e.g. vpon > upon"
+        },
+        {
+            "regex": true,
+            "match": "(.*[aeiouy])u([aeiouy].*)",
+            "replace": "\\1v\\2",
+            "comment": "Transform u to v, e.g. haue > have"
+        },
+        {
+            "match": "y^e^",
+            "replace": "the",
+            "comment": "Convert digraphs"
+        },
+        {
+            "match": "y^e",
+            "replace": "the",
+            "comment": "Convert digraphs"
+        },
+        {
+            "match": "y^t^",
+            "replace": "that",
+            "comment": "Convert digraphs"
+        },
+        {
+            "match": "w^t^",
+            "replace": "with",
+            "comment": "Convert digraphs"
+        },
+        {
+            "match": "ā",
+            "replace": "an",
+            "comment": "Convert nasal bars"
+        },
+        {
+            "match": "ē",
+            "replace": "en",
+            "comment": "Convert nasal bars"
+        },
+        {
+            "match": "ī",
+            "replace": "in",
+            "comment": "Convert nasal bars"
+        },
+        {
+            "match": "ō",
+            "replace": "on",
+            "comment": "Convert nasal bars"
+        },
+        {
+            "match": "ū",
+            "replace": "un",
+            "comment": "Convert nasal bars"
+        }
+    ]
+}

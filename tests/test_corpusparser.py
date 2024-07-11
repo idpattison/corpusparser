@@ -152,7 +152,9 @@ class SpellingCorrectionTestCase(unittest.TestCase):
     
     # check that spelling updates are applied correctly
     def test_remove_asterisks(self):
-        self.d.transform_remove_asterisks()
+        # NB to test the new style of spelling correction (from file) toggle the lines below
+        self.d.update_spellings_from_file('tests/data/spellings.json')
+        # self.d.transform_remove_asterisks()
         # check the words have been correctly identified and the updated orthography stored
         # word 15 in sentence 3 is *that*
         word = self.d.get_word_element_by_sentence_and_word_index(2, 14)
@@ -162,7 +164,7 @@ class SpellingCorrectionTestCase(unittest.TestCase):
         # word 2 in sentence 5 is vpo*n*
         word = self.d.get_word_element_by_sentence_and_word_index(4, 1)
         self.assertEqual(word.text, 'vpo*n*')
-        self.assertEqual(word.get('so'), 'vpon')
+        self.assertEqual(word.get('so'), 'upon')
 
 
 

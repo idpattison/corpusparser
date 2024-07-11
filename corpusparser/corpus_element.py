@@ -6,6 +6,7 @@
 
 import xml.etree.ElementTree as ET
 import collections
+import json
 import re
 
 class CorpusElement():
@@ -471,7 +472,16 @@ class CorpusElement():
         self.transform_lbar_to_l()
         self.transform_nasal_bars()
 
-                
+    def update_spellings_from_file(self, filename: str) -> None:
+        # read the file and apply the spelling updates
+        with open(filename) as f:
+            dict = json.load(f)
+            for spelling in dict['spellings']:
+                if 'regex' in spelling and spelling['regex']:
+                    self.update_spellings_regex(spelling['match'], spelling['replace'])
+                else:
+                    self.update_spellings(spelling['match'], spelling['replace'])
+    
     def update_spellings(self, match: str, replace: str) -> None:
         # for each word, check if it matches the match pattern
         # if so, make corrections and add the updated orthography to the word as an attribute
