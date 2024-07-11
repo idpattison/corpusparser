@@ -382,28 +382,21 @@ class CorpusElement():
             # the iterator picks up the document itself - ignore this
             if elem.tag != 'document':
 
-                # if this element is a word
-                if elem.tag == 'w':
-                    # if there is no sentence, create one, append it to the document
-                    if s == None:
-                        s = ET.SubElement(self.e, 's')
+                # NB all elements are added to a Sentence object, not just words
+                # this includes comments and footnotes
+                    
+                # if there is no sentence, create one, append it to the document
+                if s == None:
+                    s = ET.SubElement(self.e, 's')
 
-                    # add the word to the sentence
-                    # TODO - do we need to clone this?
-                    s.append(elem)
+                # add the word (or other element) to the sentence
+                s.append(elem)
 
-                    # if this word is sentence breaking
-                    if elem.get('sent-break') == '1':
-                        # set the sentence back to None to signify it has ended and we need a new one
-                        s = None
+                # if this word is sentence breaking
+                if elem.get('sent-break') == '1':
+                    # set the sentence back to None to signify it has ended and we need a new one
+                    s = None
 
-                # if not a word
-                else:
-                    # copy the element to the sentence is we have one, or the document if not
-                    if s == None:
-                        self.append(elem)
-                    else:
-                        s.append(elem) 
 
     def transform_add_original_text_to_sentences(self) -> None:
         self.transform_add_convenience_text_to_sentences(correctedText=False)
@@ -414,7 +407,7 @@ class CorpusElement():
     def transform_add_convenience_text_to_sentences(self, correctedText=False) -> None:
         # iterate through the sentences, for each one
         # concatenate the words and add to a text attribute in the sentence
-        #TODO - this should use get_children_as_text()
+        # TODO - this should use get_children_as_text()
         # however that would entail creating a Sentence object for each iteration
         # leave for now - it creates a circular import reference
 

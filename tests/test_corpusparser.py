@@ -127,6 +127,17 @@ class SentencesAndWordsTestCase(unittest.TestCase):
         longest = self.d.longest_sentence_length()
         self.assertEqual(longest, 124)
 
+    # check that initial comment elemets are correctly embedded within the first sentence
+    def test_comments_in_first_sentence(self):
+        sents = self.d.get_sentences_as_elements()
+        s = Sentence.create_from_element(sents[0])
+        # check for comment element
+        if s.count_elements('comment') == 0:
+            self.fail('No comment elements found in first sentence')
+        for elem in s.iter('comment'):
+            self.assertIn('First page with title', elem.get('comtext')) 
+            break
+
 
 
 class SpellingCorrectionTestCase(unittest.TestCase):    
