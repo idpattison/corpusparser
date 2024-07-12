@@ -19,6 +19,7 @@ d.transform_common_spellings()
 d.update_spellings('ħ', 'h')
 d.update_spellings('þ', 'th')
 
+print('Number of documents: ', d.count_documents())
 print('Number of words: ', d.count_words())
 print('Number of sentences: ', d.count_sentences())
 print('Longest sentence: ', d.longest_sentence_length())

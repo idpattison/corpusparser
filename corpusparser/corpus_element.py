@@ -170,6 +170,8 @@ class CorpusElement():
         return self.count_elements('s')
     def count_words(self) -> int:
         return self.count_elements('w')
+    def count_documents(self) -> int:
+        return self.count_elements('document')
 
     # get sentence length - longest, shortest, average
     def get_sentence_lengths(self) -> list:
@@ -193,6 +195,7 @@ class CorpusElement():
     
     # print some basic data about the element
     def print_info(self) -> None:
+        print('Number of documents: ', self.count_documents())
         print('Number of sentences: ', self.count_sentences())
         print('Number of words: ', self.count_words())
         print('Longest sentence: ', self.longest_sentence_length())

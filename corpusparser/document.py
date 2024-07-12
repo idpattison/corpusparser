@@ -1,4 +1,5 @@
 from corpusparser.corpus_element import CorpusElement
+from corpusparser.corpus import Corpus
 from corpusparser.sentence import Sentence
 from corpusparser.word import Word
 import xml.etree.ElementTree as ET   
@@ -42,6 +43,12 @@ class Document(CorpusElement):
 
     ##############################################################################
 
+    # add the document to a corpus
+    def add_to_corpus(self, corpus: Corpus):
+        corpus.get_underlying_element().append(self.get_underlying_element())
+
+    ##############################################################################
+
     # clone an existing document
     def clone_document(self):
         new_elem = self.clone_element()
@@ -59,17 +66,22 @@ class Document(CorpusElement):
 
             for elem in input_tree.getroot().iter():
                 # the iterator picks up the document element itself, so skip that
-                if elem.tag != 'document':
+                # however for simple documents the document's text may be actual text, so capture that
+                if elem.tag == 'document':
+                    if elem.text != None:
+                        text_elem = ET.SubElement(d.get_underlying_element(), 'text')
+                        text_elem.text = elem.text
 
+                else:
                     # for each child item, copy the element and append it to the new document root
                     new_elem = ET.SubElement(d.get_underlying_element(), elem.tag, elem.attrib)
                     new_elem.text = elem.text
 
-                    # if there is a tail, create a new <text> element using the tail text
-                    if elem.tail != None:
-                        if elem.tail != '' and elem.tail != '\n':
-                            text_elem = ET.SubElement(d.get_underlying_element(), 'text')
-                            text_elem.text = elem.tail
+                # if there is a tail, create a new <text> element using the tail text
+                if elem.tail != None:
+                    if elem.tail != '' and elem.tail != '\n':
+                        text_elem = ET.SubElement(d.get_underlying_element(), 'text')
+                        text_elem.text = elem.tail
 
             # at this stage the XML is in an intermediate stage, we now need to convert to our document-word form
             # set up current document, sentence and word
