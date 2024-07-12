@@ -166,3 +166,4 @@ Arthur*.txt
 Arthur*.xml
 Melusine*.txt
 Melusine*.xml
+tests/corpus/*

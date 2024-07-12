@@ -103,9 +103,29 @@ class Document(CorpusElement):
                     # iterate across each token
                     for token in tokens:
                         # add the token to the document as a w element
-                        # NB this will include punctuation
+                        # NB this will include punctuation elements
+
+                        # some words may still have punctuation attached at the beginning and end
+                        # these need to be removed from the word and stored as a separate element
+                        # check length is at least 2 to avoid single punctuation words
+                        puncs = [',', '?', '!', ':', ';', '/', '\'', '"', '¶']
+                        if len(token) > 1 and token[0] in puncs:
+                            w = ET.SubElement(d.get_underlying_element(), 'w')
+                            w.text = token[0]
+                            token = token[1:]
+                        
+                        post_punc = ''
+                        if len(token) > 1 and token[-1] in puncs:
+                            post_punc = token[-1]
+                            token = token[:-1]
+
+                        # create the actual word token
                         w = ET.SubElement(d.get_underlying_element(), 'w')
                         w.text = token
+
+                        if post_punc != '':
+                            w = ET.SubElement(d.get_underlying_element(), 'w')
+                            w.text = post_punc
 
                 # if this is a page, comment or footnote tag, copy it into the document
                 if elem.tag in ['newpage', 'newfolio', 'comment', 'footnote']:

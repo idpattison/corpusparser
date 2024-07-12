@@ -38,6 +38,21 @@
             "comment": "Convert digraphs"
         },
         {
+            "match": "þ",
+            "replace": "th",
+            "comment": "Lower case thorn"
+        },
+        {
+            "match": "Þ",
+            "replace": "Th",
+            "comment": "Upper case thorn"
+        },
+        {
+            "match": "ħ",
+            "replace": "h",
+            "comment": "Barred h"
+        },
+        {
             "match": "ā",
             "replace": "an",
             "comment": "Convert nasal bars"
