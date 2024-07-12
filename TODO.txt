@@ -3,3 +3,5 @@
 ✅︎ spelling - allow spelling rules to be defined in a file, then reference that file in the function parameters
 lemmatisation - maybe using a file of common spelling variants and morphology
 ✅︎ move all tags such as <newpage>, <newfolio> at doc head into the first sentence, so the only children of <document> are <s> tags
+count frequency of a given set of words (e.g. count all examples of you, yow, geow etc)
+combine multiple documents into a corpus

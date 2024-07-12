@@ -61,6 +61,11 @@
             "match": "ū",
             "replace": "un",
             "comment": "Convert nasal bars"
+        },
+        {
+            "match": "＆",
+            "replace": "and",
+            "comment": "Ampersand"
         }
     ]
 }
