@@ -58,7 +58,7 @@ c.print_info()
 
 c.update_spellings_from_file('tests/data/spellings.json')
 
-wf = c.word_frequency(correctedText=True)
+wf = c.word_frequency(correctedText=True, ignoreCase=True)
 try:
     with open('tests/data/word_frequency.txt', 'w') as f:
         for word, freq in wf.items():

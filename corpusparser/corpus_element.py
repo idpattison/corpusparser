@@ -213,8 +213,10 @@ class CorpusElement():
     ##############################################################################
 
     # return a dictonary with the frequency of each word in the element
-    def word_frequency(self, pattern='', correctedText=False) -> dict:
+    def word_frequency(self, pattern='', correctedText=False, ignoreCase=False) -> dict:
         words = self.get_words_as_text_list(correctedText)
+        if ignoreCase:
+            words = [w.lower() for w in words]
         if pattern != '':
             words = [w.lower() for w in words if re.match(pattern, w)]
         return collections.Counter(words)
@@ -234,6 +236,24 @@ class CorpusElement():
     def word_frequency_no_punctuation(self, correctedText=False) -> dict:
         pattern = '.*[A-Za-z0-9].*'
         return self.word_frequency(pattern, correctedText)
+    
+    #return a count of all words matching a regex pattern
+    def word_count_matching(self, pattern, correctedText=False) -> int:
+        words = self.get_words_as_text_list(correctedText)
+        return len(re.findall(pattern, ' '.join(words)))
+    
+    #return a count of all words matching a list of words
+    def word_count_in(self, list, correctedText=False) -> int:
+        words = self.get_words_as_text_list(correctedText)
+        if len(list) == 0:
+            return 0
+        pattern = ''
+        for word in list:
+            pattern += '\W' + word + '\W|'
+        pattern = pattern[:-1]
+        return len(re.findall(pattern, ' '.join(words)))
+    
+
     
     # get list of XML tags used
     def get_xml_tags(self) -> list:

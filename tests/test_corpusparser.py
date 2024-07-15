@@ -138,6 +138,26 @@ class SentencesAndWordsTestCase(unittest.TestCase):
             self.assertIn('First page with title', elem.get('comtext')) 
             break
 
+    # check word frequency counts
+    def test_word_frequency(self):
+        freq = self.d.word_frequency()
+        # check the frequency of 'the'
+        self.assertEqual(freq['the'], 73)
+        # check the frequency of 'The' with capital 'T'
+        self.assertEqual(freq['The'], 8)
+        # check the frequency of 'the' ignoring case
+        freq_case = self.d.word_frequency(ignoreCase=True)
+        self.assertEqual(freq_case['the'], 81)
+        # check the count of words containing 'ynge'
+        self.assertEqual(self.d.word_count_matching('ynge'), 16)
+        # check the count of words beginning with 'wh'
+        self.assertEqual(self.d.word_count_matching('\W[Ww][Hh]'), 27)
+        # check the count of words in a given list
+        self.assertEqual(self.d.word_count_in(['he', 'hym', 'hys']), 32)
+        self.assertEqual(self.d.word_count_in(['The']), 8)
+        self.assertEqual(self.d.word_count_in(['the']), 75)
+        self.assertEqual(self.d.word_count_in(['The', 'the']), 83)
+
 
 
 class SpellingCorrectionTestCase(unittest.TestCase):    
@@ -152,6 +172,20 @@ class SpellingCorrectionTestCase(unittest.TestCase):
     
     # check that spelling updates are applied correctly
     def test_remove_asterisks(self):
+        self.d.transform_remove_asterisks()
+        # check the words have been correctly identified and the updated orthography stored
+        # word 15 in sentence 3 is *that*
+        word = self.d.get_word_element_by_sentence_and_word_index(2, 14)
+        self.assertEqual(word.text, '*that*')
+        self.assertEqual(word.get('so'), 'that')
+        # check another word
+        # word 2 in sentence 5 is vpo*n*
+        word = self.d.get_word_element_by_sentence_and_word_index(4, 1)
+        self.assertEqual(word.text, 'vpo*n*')
+        self.assertEqual(word.get('so'), 'vpon')
+
+    # run the same tests but with the new style spelling updates using a JSON file
+    def test_remove_asterisks_using_file(self):
         # NB to test the new style of spelling correction (from file) toggle the lines below
         self.d.update_spellings_from_file('tests/data/spellings.json')
         # self.d.transform_remove_asterisks()
@@ -180,7 +214,7 @@ class SentenceParseTestCase(unittest.TestCase):
         return super().setUp()
     
     # check that parsing has been applied
-    def test_remove_asterisks(self):
+    def test_parse_sentence(self):
         # check that the parse string has been added to the sentence
         sents = self.d.get_sentences()
         s = sents[0]
@@ -189,7 +223,7 @@ class SentenceParseTestCase(unittest.TestCase):
         # check that the sentences have been restructured
         se = sents[1].get_underlying_element()
         e = se[0]  # should be a phrase
-        self.assertEqual(e.tag, 'phr')
+        self.assertEqual(e.tag, 'np')
 
 
 
