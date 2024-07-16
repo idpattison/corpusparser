@@ -57,11 +57,26 @@ for work in works:
     # update the spellings based on the spelling file
     d.update_spellings_from_file('tests/data/spellings.json')
 
+    # split into sentences and number them for referencing
+    d.transform_tokenise_sentences(tokenisation_model="period_and_capital")
+    d.transform_number_sentences()
+
+    # write the sentences to file
+    sents = d.get_sentences_as_text_list(correctedText=True)
+    try:
+        with open('tests/sentences/' + work["title"] + '.txt', 'w') as f:
+            for s in sents:
+                f.write(f"{s}\n")
+    except IOError:
+        print("Error writing file")
+
     # count the words under study and add to the dictionary
-    work["he"] = d.word_count_in(['he', 'He', 'HE', 'hee'])
-    work["him"] = d.word_count_in(['him', 'HIM', 'hym', 'HYM', 'hyme'])
-    work["ye"] = d.word_count_in(['ye', 'you', 'your'])
-    work["you"] = d.word_count_in(['you', 'your', 'ye'])
+    work["he"] = d.word_count_in(['he', 'He', 'HE', 'hee'], correctedText=True)
+    work["him"] = d.word_count_in(['him', 'HIM', 'hym', 'HYM', 'hyme'], correctedText=True)
+    work["ye"] = d.word_count_in(['ye', 'Ye', 'YE', 'yee', 'yie', 'ȝe', 'Ȝe', 'ȝee', 'Ȝee'], correctedText=True)
+    work["you"] = d.word_count_in(['you', 'You', 'YOu', 'yow', 'yeu', 'ȝou', 'ȝow'], correctedText=True)
+
+    # \Wye\W|\WYe\W|\WYE\W|\Wyee\W|\Wyie\W|\Wȝe\W|\WȜe\W|\Wȝee\W|\WȜee\W
 
 # now write out the results to CSV
 try:
@@ -69,13 +84,13 @@ try:
         f.write("Title,Year,Source,Region,He,Him,Ye,You\n")
         for work in works:
             f.write(work["title"] + ',' + 
-                    work["year"] + ',' +
+                    str(work["year"]) + ',' +
                     work["source"] + ',' +
                     work["region"] + ',' +
-                    work["he"] + ',' +
-                    work["him"] + ',' +
-                    work["ye"] + ',' +
-                    work["you"] + ',' +
+                    str(work["he"]) + ',' +
+                    str(work["him"]) + ',' +
+                    str(work["ye"]) + ',' +
+                    str(work["you"]) + ',' +
                     '\n')
             
 except IOError:
